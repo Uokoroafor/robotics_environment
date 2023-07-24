@@ -73,14 +73,14 @@ class BouncingBalls(arcade.Window):
 
     def save_balls(self):
         # Save the balls to a file
-        with open("balls.txt", "w") as f:
+        with open("../ball_drop/balls.txt", "w") as f:
             for ball in self.ball_list:
                 f.write(
                     f"{ball.x} {ball.y} {ball.dx} {ball.dy} {ball.radius} {ball.color[0]} {ball.color[1]} {ball.color[2]}\n")
 
     def load_balls(self):
         # Load the balls from a file
-        with open("balls.txt", "r") as f:
+        with open("../ball_drop/balls.txt", "r") as f:
             for line in f:
                 x, y, dx, dy, radius, r, g, b = line.split()
                 x = float(x)

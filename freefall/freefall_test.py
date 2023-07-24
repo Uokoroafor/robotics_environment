@@ -128,8 +128,6 @@ class Freefall(arcade.Window):
                         output += f"A: {self.log['answer']}\n"
 
                 f.write(output)
-                #f.write(str(self.log) + "\n")
-                #f.write(str(self.log["ball_1"]) + "\n")
             arcade.close_window()
 
     def on_mouse_press(self, x, y, button, modifiers):
@@ -149,7 +147,6 @@ def main():
 if __name__ == "__main__":
     # Generate 1000 episodes
     for j in range(1000):
-        print(f"Episode {j}")
         main()
     # main()
 

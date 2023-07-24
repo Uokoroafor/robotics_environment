@@ -66,7 +66,7 @@ class BouncingBalls(arcade.Window):
             ball.draw()
         if not self.saved:
             # arcade.finish_render()
-            arcade.get_image().save('test3.png')
+            arcade.get_image().save('../test3.png')
             self.saved = True
 
     def update(self, delta_time):

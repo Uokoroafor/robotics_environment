@@ -47,7 +47,7 @@ class MainWindow(arcade.Window):
         self.right_wall_sprite.set_position(center_x=WINDOW_SIZE - 0.5 * WALL_THICKNESS, center_y=0.5 * WINDOW_SIZE)
 
         # Create the physics engine and add the stick and object and walls
-        self.physics_engine = arcade.PymunkPhysicsEngine(gravity=(10, 0))
+        self.physics_engine = arcade.PymunkPhysicsEngine(gravity=(0, 10))
         self.physics_engine.add_sprite(sprite=self.stick_sprite, mass=STICK_MASS, friction=STICK_FRICTION,
                                        moment_of_inertia=9999999999, body_type=arcade.PymunkPhysicsEngine.DYNAMIC)
         self.physics_engine.add_sprite(sprite=self.object_sprite, mass=OBJECT_MASS, friction=OBJECT_FRICTION,
