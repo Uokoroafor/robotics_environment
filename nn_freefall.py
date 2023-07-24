@@ -5,7 +5,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-# Create a neural network to predict the vertical velocity and position of a falling object at time t given its initial x, y position and x, y velocity
+# Create a neural network to predict the vertical velocity and position
+# of a falling object at time t given its initial x, y position and x, y velocity
 # Input: x_0, y_0, dx_0, dy_0, t_1
 class Netdiff(nn.Module):
     def __init__(self):
@@ -41,7 +42,6 @@ class FreeFallDataset(torch.utils.data.Dataset):
         self.df = df
         self.x = df[['x_0', 'y_0', 'dx_0', 'dy_0', 't_1']].values
         self.y = df[['y_1']].values
-
 
     def __len__(self):
         return len(self.df)

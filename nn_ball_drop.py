@@ -4,7 +4,6 @@ from torch import nn
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
 # create a neural network to classify if ball_1 or ball_2 drops first or if they drop at the same time
 # input: x1, y1, x2, y2, dx1, dy1, dx2, dy2
 
@@ -12,6 +11,7 @@ import matplotlib.pyplot as plt
 seed = 6_345_789
 random.seed(seed)
 torch.manual_seed(seed)
+
 
 class NetBall(nn.Module):
     def __init__(self):
@@ -140,7 +140,6 @@ def train(net, optim, loss_fn, train_loader, val_loader, epochs=10):
         else:
             counter = 0
 
-
     # Save best model
     net.load_state_dict(best_model_dict)
     # save the best model at the end of training
@@ -175,7 +174,7 @@ def test(net, test_loader):
             # for i in range(3):
 
     print(f'Test accuracy: {correct / total}')
-    print(confusion_matrix/confusion_matrix.sum(1).view(-1, 1))
+    print(confusion_matrix / confusion_matrix.sum(1).view(-1, 1))
 
 
 test(net_ball, test_loader)
