@@ -9,12 +9,13 @@ import pymunk
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-SCREEN_TITLE = "Collision Dynamics"
+SCREEN_TITLE = "Collision Dynamics Test"
 
 COIN_RADIUS = 10
 COIN_SPEED_V = 0.5
 COIN_SPEED_H = 10
 COIN_RATE = 0.1
+COIN_ELASTICITY = 0.5
 
 SHELF_WIDTH = 100
 SHELF_HEIGHT = 20
@@ -40,7 +41,7 @@ class Coin:
         self.body = pymunk.Body(mass, moment)
         self.body.position = pymunk.Vec2d(x, y)
         self.shape = pymunk.Circle(self.body, radius)
-        self.shape.elasticity = 0.5  # This means that the coin will bounce back with 80% of its original speed
+        self.shape.elasticity = COIN_ELASTICITY  # This means that the coin will bounce back with 80% of its original speed
         self.radius = radius
         self.shape.collision_type = COIN
 
@@ -91,7 +92,7 @@ class Shelf:
 
 
 class ShelfBounce(arcade.Window):
-    def __init__(self, width, height, title, render=False):
+    def __init__(self, width, height, title, render=True):
         super().__init__(width, height, title)
         self.bounce_log = []
         arcade.set_background_color(arcade.color.WHITE)
@@ -137,6 +138,7 @@ class ShelfBounce(arcade.Window):
         # handler = self.space.add_collision_handler(COIN, GOAL)
         # handler.begin = self.on_coin_goal_collision
 
+
     def generate_shelves(self):
         for _, (x, y) in enumerate(SHELF_POSITION):
             # We want no overlap between shelves
@@ -175,6 +177,7 @@ class ShelfBounce(arcade.Window):
                 shelf.draw()
 
         # arcade.draw_text(f"Score: {self.score}", 10, 10, arcade.color.BLACK, 18)
+        arcade.draw_text(f"Ball Drop on Shelf Angle: {self.shelf_list[0].angle:.2f} degrees", 10, 10, arcade.color.BLACK, 18)
 
     def update(self, delta_time):
         self.space.step(1 / 60.0)  # 60 fps
@@ -190,16 +193,16 @@ class ShelfBounce(arcade.Window):
                 arcade.close_window()
 
     def on_key_press(self, key, modifiers):
-        pass
-        # if key == arcade.key.SPACE:
-        #     # Want the coin to be generated at the top of the screen in the middle 80% of the screen
-        #     x = SCREEN_WIDTH // 2
-        #     y = SCREEN_HEIGHT - COIN_RADIUS * 1.5 - BOUNDARY_WIDTH
-        #     print(f"Coin generated at ({x}, {y})")
-        #
-        #     coin = Coin(x, y, COIN_RADIUS)
-        #     self.space.add(coin.body, coin.shape)
-        #     self.coin_list.append(coin)
+        #pass
+        if key == arcade.key.SPACE:
+            # Want the coin to be generated at the top of the screen in the middle 80% of the screen
+            x = SCREEN_WIDTH // 2
+            y = SCREEN_HEIGHT - COIN_RADIUS * 1.5 - BOUNDARY_WIDTH
+            print(f"Coin generated at ({x}, {y})")
+
+            coin = Coin(x, y, COIN_RADIUS)
+            self.space.add(coin.body, coin.shape)
+            self.coin_list.append(coin)
 
     def check_shelf_overlap(self, shelf1, shelf2):
         # Check if shelf1 overlaps with shelf2
@@ -227,22 +230,22 @@ class ShelfBounce(arcade.Window):
 def main():
     game = ShelfBounce(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     game.generate_shelves()
-    game.drop_coin()
+    # game.drop_coin()
     arcade.run()
     return game.bounce_log
 
 
 if __name__ == "__main__":
     all_messages = []
-    for i in range(1):
+    for i in range(10):
         message = main()
         message = ''.join(message)
         all_messages.append(message)
-        print(i)
+        # print(i)
     # remove duplicates
-    all_messages = list(set(all_messages))
-
-    # Write all messages to a text file
-    with open("bounce_log.txt", "w") as f:
-        for message in all_messages:
-            f.write(message + "\n")
+    # all_messages = list(set(all_messages))
+    #
+    # # Write all messages to a text file
+    # with open("bounce_log.txt", "w") as f:
+    #     for message in all_messages:
+    #         f.write(message + "\n")

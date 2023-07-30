@@ -33,6 +33,7 @@ GOAL = 4
 BOUNDARY_WIDTH = 10
 NUM_SHELVES = 1
 SHELF_POSITION = [(SCREEN_WIDTH // 2, (SCREEN_HEIGHT // 2))]
+BALL_ELASTICITY = 0.5
 
 
 class Coin:
@@ -42,7 +43,7 @@ class Coin:
         self.body = pymunk.Body(mass, moment)
         self.body.position = pymunk.Vec2d(x, y)
         self.shape = pymunk.Circle(self.body, radius)
-        self.shape.elasticity = 0.5  # This means that the coin will bounce back with 80% of its original speed
+        self.shape.elasticity = BALL_ELASTICITY  # This means that the coin will bounce back with 80% of its original speed
         self.radius = radius
         self.shape.collision_type = COIN
 
@@ -140,7 +141,7 @@ class ShelfBounce():
             self.space.add(shelf.body, shelf.shape)
             self.shelf_list.append(shelf)
             self.shelf_list.append(shelf)
-            message = f"A rigid object is fixed at x={shelf.center_x} and y={shelf.center_y}) with angle {shelf.angle:.2f} degrees. "  # , width {shelf.width:.2f} and height {shelf.height}. "
+            message = f"A rigid object is fixed at its center at x={shelf.center_x} and y={shelf.center_y}) with angle {shelf.angle:.2f} degrees. and width {shelf.width:.2f}. "  # and height {shelf.height}. "
             # add message to log
             self.bounce_log.append(message)
             # print(message)
@@ -167,7 +168,7 @@ class ShelfBounce():
                             1 / 60.0) * fraction_of_time_step
 
                     self.bounce_log.append('At what x position does the ball hit the ground?')
-                    self.bounce_log.append(f' Answer: x = {x_at_y_equals_zero:.2f}.')
+                    self.bounce_log.append(f' Answer: x = {x_at_y_equals_zero:.2f}')
                     return  # Stop the simulation once the coin has hit the ground
 
     def on_draw(self):
@@ -222,7 +223,10 @@ if __name__ == "__main__":
     # Fix the random seed
     random.seed(6_345_789)
     all_messages = []
-    for i in range(5000):
+
+    for i in range(100_000):
+        # GRAVITY = (0, -1 * random.randint(5, 10))
+        BALL_ELASTICITY = round(random.uniform(0.1, 1.0), 2)
         message = main()
         message = ''.join(message)
         all_messages.append(message)
@@ -232,6 +236,6 @@ if __name__ == "__main__":
     print(len(all_messages))
 
     # Write all messages to a text file
-    with open("bounce_log.txt", "w") as f:
+    with open("bounce_log_variable_elasticity.txt", "w") as f:
         for message in all_messages:
             f.write(message + "\n")
