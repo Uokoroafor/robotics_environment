@@ -69,7 +69,7 @@ loss_fn_diff = nn.MSELoss()
 optim_same = torch.optim.Adam(net_same.parameters(), lr=0.001)
 optim_diff = torch.optim.Adam(net_diff.parameters(), lr=0.001)
 
-df_same = pd.read_csv('freefall/examples_same_steps.csv')
+df_same = pd.read_csv('data/freefall/examples_same_steps.csv')
 indices = list(range(len(df_same)))
 random.shuffle(indices)
 train_indices = indices[:int(0.8 * len(indices))]
@@ -85,7 +85,7 @@ data_loader_train_same = torch.utils.data.DataLoader(train_dataset_same, batch_s
 data_loader_val_same = torch.utils.data.DataLoader(val_dataset_same, batch_size=batch_size, shuffle=True)
 data_loader_test_same = torch.utils.data.DataLoader(test_dataset_same, batch_size=batch_size, shuffle=True)
 
-df_diff = pd.read_csv('freefall/examples_diff_steps.csv')
+df_diff = pd.read_csv('data/freefall/examples_diff_steps.csv')
 
 train_dataset_diff = FreeFallDataset(df_diff.iloc[train_indices])
 val_dataset_diff = FreeFallDataset(df_diff.iloc[val_indices])
@@ -166,11 +166,11 @@ net_same = train(**same_args)
 print('\nTraining different network')
 net_diff = train(**diff_args)
 
-torch.save(net_same, 'freefall/freefall_same.pt')
-torch.save(net_diff, 'freefall/freefall_diff.pt')
+torch.save(net_same, 'data/freefall/freefall_same.pt')
+torch.save(net_diff, 'data/freefall/freefall_diff.pt')
 
 # Now load examples_test.csv and run the networks on it
-df_test = pd.read_csv('freefall/examples_tests.csv')
+df_test = pd.read_csv('data/freefall/examples_tests.csv')
 test_dataset = FreeFallDataset(df_test)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 

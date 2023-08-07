@@ -13,6 +13,7 @@ def plot_predictions(dataloader: torch.utils.data.DataLoader, model: torch.nn.Mo
         model (torch.nn.Module): Trained model
         title (str, optional): Title of the plot. Defaults to None.
         plot_all (bool, optional): Plots the line for the predictions and targets against the input. Defaults to False.
+        save_path (str, optional): Path to save the plot. Defaults to None.
     """
     x_tensor = torch.tensor(dataloader.dataset.x, dtype=torch.float32).squeeze()
     y_tensor = torch.tensor(dataloader.dataset.y, dtype=torch.float32).squeeze()
@@ -56,7 +57,8 @@ def plot_predictions(dataloader: torch.utils.data.DataLoader, model: torch.nn.Mo
         print(f'Test MSE: {nn.MSELoss()(preds, y_tensor): .4f}')
 
 
-def plot_losses(train_loss: List[float], val_loss: List[float], title: Optional[str] = None, save_path: Optional[str] = None):
+def plot_losses(train_loss: List[float], val_loss: List[float], title: Optional[str] = None,
+                save_path: Optional[str] = None):
     """Plot the losses over the epochs
 
     Args:

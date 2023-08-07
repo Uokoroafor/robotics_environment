@@ -21,7 +21,7 @@ SHELF_WIDTH = 100
 SHELF_HEIGHT = 20
 
 GRAVITY = (0, -100)
-DAMPING = 0.9 # ADD WIND RESISTANCE
+DAMPING = 0.9  # ADD WIND RESISTANCE
 
 STARTING_SCORE = 10
 
@@ -34,6 +34,8 @@ GOAL = 4
 BOUNDARY_WIDTH = 10
 NUM_SHELVES = 1
 SHELF_POSITION = [(SCREEN_WIDTH // 2, (SCREEN_HEIGHT // 2))]
+
+
 class Coin:
     def __init__(self, x, y, radius):
         mass = 10
@@ -50,7 +52,7 @@ class Coin:
 
 
 class Shelf:
-    def __init__(self, x, y, width, height, angle=0):
+    def __init__(self, x, y, width, height, angle=0.0):
         self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
         self.body.position = pymunk.Vec2d(x, y)
         self.shape = pymunk.Segment(self.body, pymunk.Vec2d(-width / 2, -height / 2),
@@ -90,7 +92,6 @@ class Shelf:
         arcade.draw_polygon_filled(corners, self.color)
 
 
-
 class ShelfBounce(arcade.Window):
     def __init__(self, width, height, title, render=True):
         super().__init__(width, height, title)
@@ -99,7 +100,6 @@ class ShelfBounce(arcade.Window):
         self.space = pymunk.Space()
         self.space.gravity = GRAVITY
         self.render = render
-
 
         self.coin_list = []
         self.shelf_list = []
@@ -135,10 +135,6 @@ class ShelfBounce(arcade.Window):
         handler = self.space.add_collision_handler(COIN, SHELF)
         handler.begin = self.on_coin_shelf_collision
 
-        # handler = self.space.add_collision_handler(COIN, GOAL)
-        # handler.begin = self.on_coin_goal_collision
-
-
     def generate_shelves(self):
         for _, (x, y) in enumerate(SHELF_POSITION):
             # We want no overlap between shelves
@@ -151,8 +147,6 @@ class ShelfBounce(arcade.Window):
             # add message to log
             self.bounce_log.append(message)
             # print(message)
-
-
 
     def drop_coin(self):
         # Want the coin to be generated at the top of the screen in the middle 80% of the screen
@@ -168,7 +162,7 @@ class ShelfBounce(arcade.Window):
     def on_draw(self):
         if self.render:
             arcade.start_render()
-        # self.goal_state.draw()
+            # self.goal_state.draw()
 
             for coin in self.coin_list:
                 coin.draw()
@@ -177,14 +171,15 @@ class ShelfBounce(arcade.Window):
                 shelf.draw()
 
         # arcade.draw_text(f"Score: {self.score}", 10, 10, arcade.color.BLACK, 18)
-        arcade.draw_text(f"Ball Drop on Shelf Angle: {self.shelf_list[0].angle:.2f} degrees", 10, 10, arcade.color.BLACK, 18)
+        arcade.draw_text(f"Ball Drop on Shelf Angle: {self.shelf_list[0].angle:.2f} degrees", 10, 10,
+                         arcade.color.BLACK, 18)
 
     def update(self, delta_time):
         self.space.step(1 / 60.0)  # 60 fps
         for i, coin in enumerate(self.coin_list):
             # interpolate to find the x position at y=0 using gravity and velocity
             # s = ut + 1/2 at^2
-            if coin.body.position.y < 0 < -(coin.body.position.y*delta_time + 0.5 * GRAVITY[1] * delta_time**2):
+            if coin.body.position.y < 0 < -(coin.body.position.y * delta_time + 0.5 * GRAVITY[1] * delta_time ** 2):
                 # Use linear interpolation to estimate the x position at y=0
                 fraction_of_time_step = -coin.body.position.y / (coin.body.velocity.y * delta_time)
                 x_at_y_equals_zero = coin.body.position.x + coin.body.velocity.x * delta_time * fraction_of_time_step
@@ -193,7 +188,7 @@ class ShelfBounce(arcade.Window):
                 arcade.close_window()
 
     def on_key_press(self, key, modifiers):
-        #pass
+        # pass
         if key == arcade.key.SPACE:
             # Want the coin to be generated at the top of the screen in the middle 80% of the screen
             x = SCREEN_WIDTH // 2
@@ -226,7 +221,6 @@ class ShelfBounce(arcade.Window):
         return True
 
 
-
 def main():
     game = ShelfBounce(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     game.generate_shelves()
@@ -239,13 +233,12 @@ if __name__ == "__main__":
     all_messages = []
     for i in range(10):
         message = main()
-        message = ''.join(message)
-        all_messages.append(message)
+        all_messages.append(''.join(message))
         # print(i)
     # remove duplicates
-    # all_messages = list(set(all_messages))
-    #
-    # # Write all messages to a text file
-    # with open("bounce_log.txt", "w") as f:
-    #     for message in all_messages:
-    #         f.write(message + "\n")
+    all_messages = list(set(all_messages))
+
+    # Write all messages to a text file
+    with open("bounce_log.txt", "w") as f:
+        for message in all_messages:
+            f.write(message + "\n")

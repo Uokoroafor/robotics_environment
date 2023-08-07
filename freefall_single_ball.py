@@ -111,12 +111,12 @@ class Freefall(arcade.Window):
             self.log["output"] = ball.pos_dict
             self.info += ball.info
             # write log to a csv file
-            with open("freefall_log.csv", "a") as f:
+            with open("data/freefall/freefall_log.csv", "a") as f:
                 writer = csv.DictWriter(f, fieldnames=["episode", "input", "output"])
                 writer.writerow(self.log)
 
             # write log to a txt file
-            with open("freefall_log_.txt", "a") as f:
+            with open("data/freefall/freefall_log_.txt", "a") as f:
                 f.write(self.info)
 
             arcade.close_window()

@@ -60,7 +60,7 @@ loss_fn = nn.CrossEntropyLoss()
 
 optim_same = torch.optim.Adam(net_ball.parameters(), lr=0.0001)
 
-df = pd.read_csv('ball_drop/ball_drop.csv')
+df = pd.read_csv('data/ball_drop/ball_drop.csv')
 
 indices = list(range(len(df)))
 random.shuffle(indices)
@@ -69,9 +69,9 @@ val_indices = indices[int(0.8 * len(indices)):int(0.9 * len(indices))]
 test_indices = indices[int(0.9 * len(indices)):]
 
 # save train, val, test indices to csvs
-pd.DataFrame(train_indices).to_csv('indices/10k/train_indices.csv', index=False)
-pd.DataFrame(val_indices).to_csv('indices/10k/val_indices.csv', index=False)
-pd.DataFrame(test_indices).to_csv('indices/10k/test_indices.csv', index=False)
+pd.DataFrame(train_indices).to_csv('data/indices/10k/train_indices.csv', index=False)
+pd.DataFrame(val_indices).to_csv('data/indices/10k/val_indices.csv', index=False)
+pd.DataFrame(test_indices).to_csv('data/indices/10k/test_indices.csv', index=False)
 
 train_dataset = BallDataset(df.iloc[train_indices])
 val_dataset = BallDataset(df.iloc[val_indices])
@@ -143,7 +143,7 @@ def train(net, optim, loss_fn, train_loader, val_loader, epochs=10):
     # Save best model
     net.load_state_dict(best_model_dict)
     # save the best model at the end of training
-    torch.save(net, 'ball_drop/best_model_ball.pt')
+    torch.save(net, 'data/ball_drop/best_model_ball.pt')
 
     plt.plot(train_losses, label='train')
     plt.plot(val_losses, label='val')

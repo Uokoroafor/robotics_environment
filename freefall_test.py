@@ -117,7 +117,7 @@ class Freefall(arcade.Window):
 
         if len(self.ball_list) == 0:
             # Append log to file
-            with open("freefall_log.txt", "a") as f:
+            with open("data/freefall/freefall_log.txt", "a") as f:
                 # Output the log as a string "Ball at (x, y) with velocity (dx, dy),mass m and radius r."
                 output = "Two balls are dropped under gravity.\n"
                 for key in self.log:
