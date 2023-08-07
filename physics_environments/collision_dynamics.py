@@ -205,8 +205,6 @@ class ShelfBounce():
         return True
 
     def on_coin_shelf_collision(self, arbiter, space, data):
-        # print("Coin hit shelf")
-        # Want to add the number of times the coin has hit the shelf to the log
         self.bounce_count += 1
         return True
 

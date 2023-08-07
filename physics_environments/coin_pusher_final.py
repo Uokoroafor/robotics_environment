@@ -175,7 +175,8 @@ class CoinPusher(arcade.Window):
         for shelf in self.shelf_list:
             shelf.draw()
 
-        arcade.draw_text(f"Score: {self.score}", 10, 10, arcade.color.BLACK, 18)
+        # arcade.draw_text(f"Score: {self.score}", 10, 10, arcade.color.BLACK, 18)
+        arcade.draw_text(f"{10-len(self.coin_list)} coin(s) left to drop", 10, 10, arcade.color.BLACK, 18)
 
     def update(self, delta_time):
         self.space.step(1 / 60.0)

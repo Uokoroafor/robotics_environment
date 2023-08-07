@@ -86,6 +86,7 @@ df_val_indices = pd.DataFrame(val_indices, columns=['indices'])
 df_train_indices.to_csv(data_folder + 'train_indices.csv', index=False)
 df_val_indices.to_csv(data_folder + 'val_indices.csv', index=False)
 
+
 # Now create training and test loop for each function
 def train_loop(dataloader_train, model, loss_fn, optimizer, dataloader_val):
     train_loss = 0
@@ -133,13 +134,6 @@ def plot_predictions(dataloader, model, name):
     with torch.no_grad():
         # Plot over all the data
         preds = model(x_tensor)
-        # print('Pred.shape: ', preds.shape)
-        # print('y_tensor.shape: ', y_tensor.shape)
-        # print('preds: ', preds[:10])
-        # print('y_tensor: ', y_tensor[:10])
-        # plot a scatter of predictions vs actual
-        # plt.scatter(y_tensor, preds)
-        # plt.plot(y_tensor, y_tensor, color='red', label='Actual')
 
         # Plot actual and predicted against x
         plt.scatter(x_tensor, y_tensor, color='red', label='Actual')
@@ -149,6 +143,7 @@ def plot_predictions(dataloader, model, name):
         plt.ylabel('Predicted')
         plt.legend()
         plt.show()
+        print(f'MSE for {name} function: {nn.MSELoss()(preds, y_tensor): .4f}')
 
 
 def plot_losses(train_loss, val_loss, name):
@@ -234,6 +229,8 @@ def main():
             f"Time taken: {(time.time() - start_time) / 3600:.0f} hours"
             f", {((time.time() - start_time) % 3600) / 60:.0f} minutes, {((time.time() - start_time) % 3600) % 60:.0f} "
             f"seconds\n\n")
+
+        pass
 
 
 if __name__ == '__main__':
