@@ -7,5 +7,5 @@ This repository serves primarily as a sandbox environment used for experimentati
 
 ## Overview
 
-This is a sandbox environment for the individual project submission MSc in Artificial Intelligence Course at Imperial College London.
+This is a sandbox repository for the individual project submission MSc in Artificial Intelligence Course at Imperial College London.
 It is used to test the generation of 2D environments based in Arcade with the physics engine PyMunk and testing the results on standard neural network architectures.
