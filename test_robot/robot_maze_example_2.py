@@ -38,7 +38,10 @@ class Maze:
 
         for dx, dy in directions:
             next_row, next_col = row + dx, col + dy
-            if self.is_valid_cell(next_row, next_col) and (next_row, next_col) not in visited:
+            if (
+                self.is_valid_cell(next_row, next_col)
+                and (next_row, next_col) not in visited
+            ):
                 neighbors.append((next_row, next_col))
 
         return neighbors
@@ -65,7 +68,9 @@ class Maze:
                 if self.maze[row][col] == 1:
                     x = col * CELL_SIZE
                     y = row * CELL_SIZE
-                    arcade.draw_rectangle_filled(x, y, CELL_SIZE, CELL_SIZE, arcade.color.BLACK)
+                    arcade.draw_rectangle_filled(
+                        x, y, CELL_SIZE, CELL_SIZE, arcade.color.BLACK
+                    )
 
 
 class Robot(arcade.Sprite):
@@ -110,23 +115,49 @@ class MazeRobot(arcade.Window):
         self.maze.draw()
         self.robot.draw()
 
-        arcade.draw_rectangle_filled(self.goal_x, self.goal_y, CELL_SIZE, CELL_SIZE, arcade.color.GREEN)
+        arcade.draw_rectangle_filled(
+            self.goal_x, self.goal_y, CELL_SIZE, CELL_SIZE, arcade.color.GREEN
+        )
 
     def update(self, delta_time):
         pass
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.UP:
-            if self.robot.center_y < SCREEN_HEIGHT - CELL_SIZE and self.maze.maze[self.robot.center_y // CELL_SIZE + 1][self.robot.center_x // CELL_SIZE] == 0:
+            if (
+                self.robot.center_y < SCREEN_HEIGHT - CELL_SIZE
+                and self.maze.maze[self.robot.center_y // CELL_SIZE + 1][
+                    self.robot.center_x // CELL_SIZE
+                ]
+                == 0
+            ):
                 self.robot.move_up()
         elif key == arcade.key.DOWN:
-            if self.robot.center_y > CELL_SIZE and self.maze.maze[self.robot.center_y // CELL_SIZE - 1][self.robot.center_x // CELL_SIZE] == 0:
+            if (
+                self.robot.center_y > CELL_SIZE
+                and self.maze.maze[self.robot.center_y // CELL_SIZE - 1][
+                    self.robot.center_x // CELL_SIZE
+                ]
+                == 0
+            ):
                 self.robot.move_down()
         elif key == arcade.key.LEFT:
-            if self.robot.center_x > CELL_SIZE and self.maze.maze[self.robot.center_y // CELL_SIZE][self.robot.center_x // CELL_SIZE - 1] == 0:
+            if (
+                self.robot.center_x > CELL_SIZE
+                and self.maze.maze[self.robot.center_y // CELL_SIZE][
+                    self.robot.center_x // CELL_SIZE - 1
+                ]
+                == 0
+            ):
                 self.robot.move_left()
         elif key == arcade.key.RIGHT:
-            if self.robot.center_x < SCREEN_WIDTH - CELL_SIZE and self.maze.maze[self.robot.center_y // CELL_SIZE][self.robot.center_x // CELL_SIZE + 1] == 0:
+            if (
+                self.robot.center_x < SCREEN_WIDTH - CELL_SIZE
+                and self.maze.maze[self.robot.center_y // CELL_SIZE][
+                    self.robot.center_x // CELL_SIZE + 1
+                ]
+                == 0
+            ):
                 self.robot.move_right()
 
 

@@ -12,6 +12,7 @@ TABLE_Y = (SCREEN_HEIGHT - TABLE_HEIGHT) // 2
 ROBOT_SIZE = 50
 OBJECT_SIZE = 30
 
+
 class Robot(arcade.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -29,7 +30,11 @@ class Robot(arcade.Sprite):
                     obj.change_y = -2
 
     def intersects(self, obj):
-        return abs(self.center_x - obj.center_x) < (ROBOT_SIZE + OBJECT_SIZE) / 2 and abs(self.center_y - obj.center_y) < (ROBOT_SIZE + OBJECT_SIZE) / 2
+        return (
+            abs(self.center_x - obj.center_x) < (ROBOT_SIZE + OBJECT_SIZE) / 2
+            and abs(self.center_y - obj.center_y) < (ROBOT_SIZE + OBJECT_SIZE) / 2
+        )
+
 
 class Object:
     def __init__(self, x, y, object_type):
@@ -45,9 +50,18 @@ class Object:
 
     def draw(self):
         if self.object_type == "apple":
-            arcade.draw_circle_filled(self.center_x, self.center_y, OBJECT_SIZE, arcade.color.RED)
+            arcade.draw_circle_filled(
+                self.center_x, self.center_y, OBJECT_SIZE, arcade.color.RED
+            )
         elif self.object_type == "banana":
-            arcade.draw_rectangle_filled(self.center_x, self.center_y, OBJECT_SIZE * 2, OBJECT_SIZE, arcade.color.YELLOW)
+            arcade.draw_rectangle_filled(
+                self.center_x,
+                self.center_y,
+                OBJECT_SIZE * 2,
+                OBJECT_SIZE,
+                arcade.color.YELLOW,
+            )
+
 
 class TableArrangement(arcade.Window):
     def __init__(self, width, height, title):
@@ -69,7 +83,13 @@ class TableArrangement(arcade.Window):
     def on_draw(self):
         arcade.start_render()
 
-        arcade.draw_rectangle_filled(TABLE_X + TABLE_WIDTH // 2, TABLE_Y + TABLE_HEIGHT // 2, TABLE_WIDTH, TABLE_HEIGHT, arcade.color.LIGHT_GRAY)
+        arcade.draw_rectangle_filled(
+            TABLE_X + TABLE_WIDTH // 2,
+            TABLE_Y + TABLE_HEIGHT // 2,
+            TABLE_WIDTH,
+            TABLE_HEIGHT,
+            arcade.color.LIGHT_GRAY,
+        )
 
         self.robot.draw()
         for obj in self.object_list:
@@ -98,9 +118,11 @@ class TableArrangement(arcade.Window):
                 obj.change_x = 0
                 obj.change_y = 0
 
+
 def main():
     game = TableArrangement(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     arcade.run()
+
 
 if __name__ == "__main__":
     main()

@@ -56,5 +56,3 @@ def save_losses(train_losses: List[float], val_losses: List[float], path: str) -
         f.write("train_loss,val_loss\n")
         for train_loss, val_loss in zip(train_losses, val_losses):
             f.write(f"{train_loss},{val_loss}\n")
-
-

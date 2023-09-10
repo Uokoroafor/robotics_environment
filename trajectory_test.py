@@ -34,8 +34,10 @@ class Ball:
             self.dy *= -1
 
     def print_info(self):
-        print(f"Ball at ({self.x}, {self.y}) with velocity ({self.dx}, {self.dy}), "
-              f"mass {self.mass} and radius {self.radius}")
+        print(
+            f"Ball at ({self.x}, {self.y}) with velocity ({self.dx}, {self.dy}), "
+            f"mass {self.mass} and radius {self.radius}"
+        )
 
     def draw(self):
         arcade.draw_circle_filled(self.x, self.y, self.radius, self.colour)
@@ -44,7 +46,7 @@ class Ball:
         return math.sqrt(self.dx**2 + self.dy**2)
 
     def get_kinetic_energy(self):
-        return 0.5 * self.mass * self.get_velocity()**2
+        return 0.5 * self.mass * self.get_velocity() ** 2
 
     def get_momentum(self):
         return self.mass * self.get_velocity()
@@ -54,5 +56,3 @@ class Ball:
 
     def get_potential_energy(self):
         return self.mass * GRAVITY[1] * self.get_height()
-
-

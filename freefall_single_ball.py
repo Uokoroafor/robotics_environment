@@ -27,11 +27,17 @@ class Ball:
         self.mass = mass
         self.time_step = time_step
         # Save info to 2 decimal places
-        self.info = f"At time {self.time_step} the ball is at ({round(self.x, 2)}, {round(self.y, 2)}) with velocity " \
-                    f"({round(self.dx, 2)}, {round(self.dy, 2)}) and radius {round(self.radius, 2)}.\n"
-        self.pos_dict = dict(timestep=self.time_step, pos_x=round(self.x, 2), pos_y=round(self.y, 2),
-                             vel_x=round(self.dx, 2),
-                             vel_y=round(self.dy, 2))
+        self.info = (
+            f"At time {self.time_step} the ball is at ({round(self.x, 2)}, {round(self.y, 2)}) with velocity "
+            f"({round(self.dx, 2)}, {round(self.dy, 2)}) and radius {round(self.radius, 2)}.\n"
+        )
+        self.pos_dict = dict(
+            timestep=self.time_step,
+            pos_x=round(self.x, 2),
+            pos_y=round(self.y, 2),
+            vel_x=round(self.dx, 2),
+            vel_y=round(self.dy, 2),
+        )
 
     def update(self):
         self.x += self.dx
@@ -60,10 +66,17 @@ class Ball:
             return False
 
     def update_info(self):
-        self.info = f"At time {self.time_step} the ball is at ({round(self.x, 2)}, {round(self.y, 2)}) with velocity " \
-                    f"({round(self.dx, 2)}, {round(self.dy, 2)}) and radius {round(self.radius, 2)}.\n <SEP> \n"
-        self.pos_dict = dict(timestep=self.time_step, pos_x=round(self.x, 2), pos_y=round(self.y, 2),
-                             vel_x=round(self.dx, 2), vel_y=round(self.dy, 2))
+        self.info = (
+            f"At time {self.time_step} the ball is at ({round(self.x, 2)}, {round(self.y, 2)}) with velocity "
+            f"({round(self.dx, 2)}, {round(self.dy, 2)}) and radius {round(self.radius, 2)}.\n <SEP> \n"
+        )
+        self.pos_dict = dict(
+            timestep=self.time_step,
+            pos_x=round(self.x, 2),
+            pos_y=round(self.y, 2),
+            vel_x=round(self.dx, 2),
+            vel_y=round(self.dy, 2),
+        )
 
 
 class Freefall(arcade.Window):
@@ -73,7 +86,7 @@ class Freefall(arcade.Window):
         self.ball_list = []
         self.saved = False
         self.log = dict(episode=dict(episode=j), input=None, output=None)
-        self.info = ''
+        self.info = ""
 
     def setup(self):
         arcade.set_background_color(arcade.color.PALE_AQUA)
@@ -85,7 +98,11 @@ class Freefall(arcade.Window):
         dy = random.uniform(-0.1, 0.1)
 
         # Randomly select a colour
-        colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        colour = (
+            random.randint(0, 255),
+            random.randint(0, 255),
+            random.randint(0, 255),
+        )
         mass = random.uniform(1, 10)
         ball = Ball(x, y, dx, dy, RADIUS, colour, mass)
         self.ball_list.append(ball)
@@ -122,7 +139,7 @@ class Freefall(arcade.Window):
             arcade.close_window()
 
     def on_mouse_press(self, x, y, button, modifiers):
-        print('Mouse button pressed')
+        print("Mouse button pressed")
         if not self.saved:
             # Save an image of the window
             arcade.save_screenshot(f"freefall.png")

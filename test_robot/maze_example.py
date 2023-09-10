@@ -57,7 +57,9 @@ class MazeVisualization(arcade.Window):
                 if maze[row][col] == 1:
                     x = col * CELL_SIZE
                     y = row * CELL_SIZE
-                    arcade.draw_rectangle_filled(x, y, CELL_SIZE, CELL_SIZE, arcade.color.BLACK)
+                    arcade.draw_rectangle_filled(
+                        x, y, CELL_SIZE, CELL_SIZE, arcade.color.BLACK
+                    )
 
 
 def main():

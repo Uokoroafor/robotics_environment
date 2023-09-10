@@ -19,7 +19,6 @@ EPISODE_LENGTH = 100
 
 
 class MainWindow(arcade.Window):
-
     def __init__(self, width, height):
         # Initialise
         super().__init__(width, height, "Arcade-Test")
@@ -33,29 +32,65 @@ class MainWindow(arcade.Window):
         self.stick_sprite.set_position(180, 180)
 
         # Create the object
-        self.object_sprite = arcade.SpriteSolidColor(width=OBJECT_WIDTH, height=OBJECT_HEIGHT, color=OBJECT_COLOUR)
+        self.object_sprite = arcade.SpriteSolidColor(
+            width=OBJECT_WIDTH, height=OBJECT_HEIGHT, color=OBJECT_COLOUR
+        )
         self.object_sprite.set_position(200, 200)
 
         # Create the walls
-        self.top_wall_sprite = arcade.SpriteSolidColor(width=WINDOW_SIZE, height=WALL_THICKNESS, color=WALL_COLOUR)
-        self.top_wall_sprite.set_position(center_x=0.5 * WINDOW_SIZE, center_y=WINDOW_SIZE - 0.5 * WALL_THICKNESS)
-        self.bottom_wall_sprite = arcade.SpriteSolidColor(width=WINDOW_SIZE, height=WALL_THICKNESS, color=WALL_COLOUR)
-        self.bottom_wall_sprite.set_position(center_x=0.5 * WINDOW_SIZE, center_y=0.5 * WALL_THICKNESS)
-        self.left_wall_sprite = arcade.SpriteSolidColor(width=WALL_THICKNESS, height=WINDOW_SIZE, color=WALL_COLOUR)
-        self.left_wall_sprite.set_position(center_x=0.5 * WALL_THICKNESS, center_y=0.5 * WINDOW_SIZE)
-        self.right_wall_sprite = arcade.SpriteSolidColor(width=WALL_THICKNESS, height=WINDOW_SIZE, color=WALL_COLOUR)
-        self.right_wall_sprite.set_position(center_x=WINDOW_SIZE - 0.5 * WALL_THICKNESS, center_y=0.5 * WINDOW_SIZE)
+        self.top_wall_sprite = arcade.SpriteSolidColor(
+            width=WINDOW_SIZE, height=WALL_THICKNESS, color=WALL_COLOUR
+        )
+        self.top_wall_sprite.set_position(
+            center_x=0.5 * WINDOW_SIZE, center_y=WINDOW_SIZE - 0.5 * WALL_THICKNESS
+        )
+        self.bottom_wall_sprite = arcade.SpriteSolidColor(
+            width=WINDOW_SIZE, height=WALL_THICKNESS, color=WALL_COLOUR
+        )
+        self.bottom_wall_sprite.set_position(
+            center_x=0.5 * WINDOW_SIZE, center_y=0.5 * WALL_THICKNESS
+        )
+        self.left_wall_sprite = arcade.SpriteSolidColor(
+            width=WALL_THICKNESS, height=WINDOW_SIZE, color=WALL_COLOUR
+        )
+        self.left_wall_sprite.set_position(
+            center_x=0.5 * WALL_THICKNESS, center_y=0.5 * WINDOW_SIZE
+        )
+        self.right_wall_sprite = arcade.SpriteSolidColor(
+            width=WALL_THICKNESS, height=WINDOW_SIZE, color=WALL_COLOUR
+        )
+        self.right_wall_sprite.set_position(
+            center_x=WINDOW_SIZE - 0.5 * WALL_THICKNESS, center_y=0.5 * WINDOW_SIZE
+        )
 
         # Create the physics engine and add the stick and object and walls
         self.physics_engine = arcade.PymunkPhysicsEngine(gravity=(0, 10))
-        self.physics_engine.add_sprite(sprite=self.stick_sprite, mass=STICK_MASS, friction=STICK_FRICTION,
-                                       moment_of_inertia=9999999999, body_type=arcade.PymunkPhysicsEngine.DYNAMIC)
-        self.physics_engine.add_sprite(sprite=self.object_sprite, mass=OBJECT_MASS, friction=OBJECT_FRICTION,
-                                       damping=OBJECT_DAMPING, body_type=arcade.PymunkPhysicsEngine.DYNAMIC)
-        self.physics_engine.add_sprite(sprite=self.top_wall_sprite, body_type=arcade.PymunkPhysicsEngine.STATIC)
-        self.physics_engine.add_sprite(sprite=self.bottom_wall_sprite, body_type=arcade.PymunkPhysicsEngine.STATIC)
-        self.physics_engine.add_sprite(sprite=self.right_wall_sprite, body_type=arcade.PymunkPhysicsEngine.STATIC)
-        self.physics_engine.add_sprite(sprite=self.left_wall_sprite, body_type=arcade.PymunkPhysicsEngine.STATIC)
+        self.physics_engine.add_sprite(
+            sprite=self.stick_sprite,
+            mass=STICK_MASS,
+            friction=STICK_FRICTION,
+            moment_of_inertia=9999999999,
+            body_type=arcade.PymunkPhysicsEngine.DYNAMIC,
+        )
+        self.physics_engine.add_sprite(
+            sprite=self.object_sprite,
+            mass=OBJECT_MASS,
+            friction=OBJECT_FRICTION,
+            damping=OBJECT_DAMPING,
+            body_type=arcade.PymunkPhysicsEngine.DYNAMIC,
+        )
+        self.physics_engine.add_sprite(
+            sprite=self.top_wall_sprite, body_type=arcade.PymunkPhysicsEngine.STATIC
+        )
+        self.physics_engine.add_sprite(
+            sprite=self.bottom_wall_sprite, body_type=arcade.PymunkPhysicsEngine.STATIC
+        )
+        self.physics_engine.add_sprite(
+            sprite=self.right_wall_sprite, body_type=arcade.PymunkPhysicsEngine.STATIC
+        )
+        self.physics_engine.add_sprite(
+            sprite=self.left_wall_sprite, body_type=arcade.PymunkPhysicsEngine.STATIC
+        )
 
     def on_draw(self):
         self.clear()
@@ -72,8 +107,13 @@ class MainWindow(arcade.Window):
         self.global_time_step += 1
         self.episode_time_step += 1
         if self.episode_time_step == EPISODE_LENGTH:
-            self.physics_engine.set_position(self.stick_sprite, (
-            random.randint(50, WINDOW_SIZE - 50), random.randint(50, WINDOW_SIZE - 50)))
+            self.physics_engine.set_position(
+                self.stick_sprite,
+                (
+                    random.randint(50, WINDOW_SIZE - 50),
+                    random.randint(50, WINDOW_SIZE - 50),
+                ),
+            )
             self.episode_velocity = (random.randint(-50, 50), random.randint(-50, 50))
             self.episode_time_step = 0
 

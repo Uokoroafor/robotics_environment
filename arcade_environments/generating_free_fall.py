@@ -53,7 +53,7 @@ def get_example_2balls():
     x1_range = (0, 100)
     y1_range = (0, 100)
     dx_range = (-1, 1)
-    dy_range = (0,0)
+    dy_range = (0, 0)
 
     # pick random values for x, y, dx, dy
     x1 = round(random.uniform(*x1_range), 2)
@@ -65,7 +65,7 @@ def get_example_2balls():
     while x2 == x1:
         x2 = round(random.uniform(*x1_range), 2)
     # make y1 the same as y2 10% of the time
-    if random.random() < (1/4):
+    if random.random() < (1 / 4):
         y2 = y1
     else:
         y2 = round(random.uniform(*y1_range), 2)
@@ -74,21 +74,23 @@ def get_example_2balls():
     dy2 = round(random.uniform(*dy_range), 2)
 
     if y1 == y2:
-        ans = 'same'
+        ans = "same"
     elif y1 < y2:
-        ans = 'ball_1'
+        ans = "ball_1"
     else:
-        ans = 'ball_2'
+        ans = "ball_2"
 
     # log initial values
-    log_0 = dict(x1=x1, y1=y1, dx1=dx1, dy1=dy1, x2=x2, y2=y2, dx2=dx2, dy2=dy2, ans=ans)
+    log_0 = dict(
+        x1=x1, y1=y1, dx1=dx1, dy1=dy1, x2=x2, y2=y2, dx2=dx2, dy2=dy2, ans=ans
+    )
 
     return log_0
 
 
 def model(x, y, dx, dy, t):
     x_ = x + dx * t
-    y_ = max(y + dy * t + 0.5 * GRAVITY[1] * t ** 2, 0)
+    y_ = max(y + dy * t + 0.5 * GRAVITY[1] * t**2, 0)
     dx_ = dx + GRAVITY[0] * t
     dy_ = dy + GRAVITY[1] * t
     if y_ == 0:
@@ -96,7 +98,7 @@ def model(x, y, dx, dy, t):
     return x_, y_, dx_, dy_
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Generate 10 examples
     # examples = [get_example() for _ in range(10000)]
     examples = []
@@ -118,6 +120,6 @@ if __name__ == '__main__':
     # print number of examples
     print(f"Number of examples: {len(df)}")
     # save to csv
-    df.to_csv('ball_drop.csv', index=False)
+    df.to_csv("ball_drop.csv", index=False)
 
     print(df.head())

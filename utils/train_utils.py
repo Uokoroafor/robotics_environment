@@ -14,17 +14,18 @@ from utils.file_utils import create_training_folder, save_losses
 
 class Trainer:
     def __init__(
-            self,
-            model: nn.Module,
-            optimiser: torch.optim.Optimizer,
-            loss_fn: torch.nn.modules.loss._Loss,
-            scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None):
+        self,
+        model: nn.Module,
+        optimiser: torch.optim.Optimizer,
+        loss_fn: torch.nn.modules.loss._Loss,
+        scheduler: Optional[torch.optim.lr_scheduler._LRScheduler] = None,
+    ):
         """Constructor class for Trainer used to train a transformer model for language modelling and text generation
         Args:
             model (nn.Module): Model to train
             optimiser (torch.optim.Optimizer): Optimiser to use for training
             loss_fn (torch.nn.modules.loss._Loss): Loss function to use for training
-          """
+        """
         self.train_data = None
         self.val_data = None
         self.model = model
@@ -48,17 +49,17 @@ class Trainer:
             f.write(str(self.model))
 
     def train(
-            self,
-            train_dataloader: torch.utils.data.DataLoader,
-            val_dataloader: torch.utils.data.DataLoader,
-            epochs: int,
-            eval_every: int = 1,
-            save_model: bool = True,
-            save_model_path: Optional[str] = None,
-            plotting: bool = True,
-            verbose: bool = True,
-            early_stopping: bool = False,
-            early_stopping_patience: int = 10,
+        self,
+        train_dataloader: torch.utils.data.DataLoader,
+        val_dataloader: torch.utils.data.DataLoader,
+        epochs: int,
+        eval_every: int = 1,
+        save_model: bool = True,
+        save_model_path: Optional[str] = None,
+        plotting: bool = True,
+        verbose: bool = True,
+        early_stopping: bool = False,
+        early_stopping_patience: int = 10,
     ):
         """Train the model
         Args:
@@ -84,9 +85,7 @@ class Trainer:
             verbose=verbose,
         )
 
-        logger.log_info(
-            f"Training {type(self.model).__name__} for {epochs} iterations"
-        )
+        logger.log_info(f"Training {type(self.model).__name__} for {epochs} iterations")
         count = 0
 
         try:
@@ -94,10 +93,11 @@ class Trainer:
                 # Running for one extra epoch to get the final validation loss
                 if i % eval_every == 0:
                     train_loss, val_loss = self.train_loop(
-                        train_dataloader, val_dataloader)
+                        train_dataloader, val_dataloader
+                    )
 
                     logger.log_info(
-                        f'At Iteration: {max(1, i)}/{epochs}, Train loss: {train_loss:.4f}, Val loss: {val_loss:.4f}'
+                        f"At Iteration: {max(1, i)}/{epochs}, Train loss: {train_loss:.4f}, Val loss: {val_loss:.4f}"
                     )
 
                     train_losses.append(train_loss)
@@ -173,7 +173,9 @@ class Trainer:
         self.save_model(best_model_path)
         return best_model_path
 
-    def update_best_model_dict(self, loss_val: float, lowest_val_loss: float, count: int) -> Tuple[float, int]:
+    def update_best_model_dict(
+        self, loss_val: float, lowest_val_loss: float, count: int
+    ) -> Tuple[float, int]:
         """Update the best model dictionary if the validation loss is the lowest so far
         Args:
             loss_val (float): Dictionary containing the training and validation losses
@@ -192,8 +194,11 @@ class Trainer:
             count += 1
         return lowest_val_loss, count
 
-    def train_loop(self, dataloader_train: torch.utils.data.DataLoader,
-                   dataloader_val: Optional[torch.utils.data.DataLoader] = None) -> Tuple[float, Optional[float]]:
+    def train_loop(
+        self,
+        dataloader_train: torch.utils.data.DataLoader,
+        dataloader_val: Optional[torch.utils.data.DataLoader] = None,
+    ) -> Tuple[float, Optional[float]]:
         """Train the model for one epoch and return the train and validation loss.
 
         Args:
@@ -207,7 +212,7 @@ class Trainer:
         train_loss = 0
 
         for batch, (X_train, y_train) in enumerate(dataloader_train):
-            train_pred = self.model(X_train)
+            train_pred = self.model(X_train).squeeze(-1)
             loss = self.loss_fn(train_pred, y_train)
 
             # Backpropagation
@@ -224,7 +229,7 @@ class Trainer:
             with torch.no_grad():
                 val_loss = 0
                 for batch, (X_val, y_val) in enumerate(dataloader_val):
-                    val_pred = self.model(X_val)
+                    val_pred = self.model(X_val).squeeze(-1)
                     loss = self.loss_fn(val_pred, y_val)
                     val_loss += loss.item()
                 val_loss /= len(dataloader_val.dataset)
@@ -233,7 +238,9 @@ class Trainer:
 
         return train_loss, val_loss
 
-    def evaluate(self, testdata: Union[torch.utils.data.DataLoader, torch.Tensor]) -> float:
+    def evaluate(
+        self, testdata: Union[torch.utils.data.DataLoader, torch.Tensor]
+    ) -> float:
         """Test the model and return the test loss and accuracy.
 
         Args:
@@ -247,12 +254,12 @@ class Trainer:
         test_loss = 0
         with torch.no_grad():
             if isinstance(testdata, torch.Tensor):
-                test_pred = self.model(testdata)
+                test_pred = self.model(testdata).squeeze(-1)
                 loss = self.loss_fn(test_pred, testdata)
                 test_loss += loss.item()
             else:
                 for batch, (X_test, y_test) in enumerate(testdata):
-                    test_pred = self.model(X_test)
+                    test_pred = self.model(X_test).squeeze(-1)
                     loss = self.loss_fn(test_pred, y_test)
                     test_loss += loss.item()
         test_loss /= len(testdata.dataset)
@@ -274,6 +281,7 @@ def set_seed(seed: Optional[int] = 0):
 
     if "random" in sys.modules:
         sys.modules["random"].seed(seed)
+
 
 # def train_model(model: nn.Module, dataloader_train: torch.utils.data.DataLoader, dataloader_val: torch.utils.data.DataLoader,
 #                 loss_fn: nn.Module, optimiser: torch.optim.Optimizer, epochs: int = 10) -> Tuple[List[float], List[float]]:

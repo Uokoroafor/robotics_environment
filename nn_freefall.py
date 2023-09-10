@@ -40,8 +40,8 @@ class Netsame(nn.Module):
 class FreeFallDataset(torch.utils.data.Dataset):
     def __init__(self, df):
         self.df = df
-        self.x = df[['x_0', 'y_0', 'dx_0', 'dy_0', 't_1']].values
-        self.y = df[['y_1']].values
+        self.x = df[["x_0", "y_0", "dx_0", "dy_0", "t_1"]].values
+        self.y = df[["y_1"]].values
 
     def __len__(self):
         return len(self.df)
@@ -69,31 +69,43 @@ loss_fn_diff = nn.MSELoss()
 optim_same = torch.optim.Adam(net_same.parameters(), lr=0.001)
 optim_diff = torch.optim.Adam(net_diff.parameters(), lr=0.001)
 
-df_same = pd.read_csv('data/freefall/examples_same_steps.csv')
+df_same = pd.read_csv("data/freefall/examples_same_steps.csv")
 indices = list(range(len(df_same)))
 random.shuffle(indices)
-train_indices = indices[:int(0.8 * len(indices))]
-val_indices = indices[int(0.8 * len(indices)):int(0.9 * len(indices))]
-test_indices = indices[int(0.9 * len(indices)):]
+train_indices = indices[: int(0.8 * len(indices))]
+val_indices = indices[int(0.8 * len(indices)) : int(0.9 * len(indices))]
+test_indices = indices[int(0.9 * len(indices)) :]
 
 train_dataset_same = FreeFallDataset(df_same.iloc[train_indices])
 val_dataset_same = FreeFallDataset(df_same.iloc[val_indices])
 test_dataset_same = FreeFallDataset(df_same.iloc[test_indices])
 
 batch_size = 32
-data_loader_train_same = torch.utils.data.DataLoader(train_dataset_same, batch_size=batch_size, shuffle=True)
-data_loader_val_same = torch.utils.data.DataLoader(val_dataset_same, batch_size=batch_size, shuffle=True)
-data_loader_test_same = torch.utils.data.DataLoader(test_dataset_same, batch_size=batch_size, shuffle=True)
+data_loader_train_same = torch.utils.data.DataLoader(
+    train_dataset_same, batch_size=batch_size, shuffle=True
+)
+data_loader_val_same = torch.utils.data.DataLoader(
+    val_dataset_same, batch_size=batch_size, shuffle=True
+)
+data_loader_test_same = torch.utils.data.DataLoader(
+    test_dataset_same, batch_size=batch_size, shuffle=True
+)
 
-df_diff = pd.read_csv('data/freefall/examples_diff_steps.csv')
+df_diff = pd.read_csv("data/freefall/examples_diff_steps.csv")
 
 train_dataset_diff = FreeFallDataset(df_diff.iloc[train_indices])
 val_dataset_diff = FreeFallDataset(df_diff.iloc[val_indices])
 test_dataset_diff = FreeFallDataset(df_diff.iloc[test_indices])
 
-data_loader_train_diff = torch.utils.data.DataLoader(train_dataset_diff, batch_size=batch_size, shuffle=True)
-data_loader_val_diff = torch.utils.data.DataLoader(val_dataset_diff, batch_size=batch_size, shuffle=True)
-data_loader_test_diff = torch.utils.data.DataLoader(test_dataset_diff, batch_size=batch_size, shuffle=True)
+data_loader_train_diff = torch.utils.data.DataLoader(
+    train_dataset_diff, batch_size=batch_size, shuffle=True
+)
+data_loader_val_diff = torch.utils.data.DataLoader(
+    val_dataset_diff, batch_size=batch_size, shuffle=True
+)
+data_loader_test_diff = torch.utils.data.DataLoader(
+    test_dataset_diff, batch_size=batch_size, shuffle=True
+)
 
 
 def evaluate(net, dataloader, loss_fn):
@@ -106,7 +118,7 @@ def evaluate(net, dataloader, loss_fn):
 
 
 def train(net, optim, loss_fn, train_dataloader, val_dataloader, epochs=100):
-    best_val_loss = float('inf')
+    best_val_loss = float("inf")
     best_state_dict = None
     count = 0
     train_losses = []
@@ -132,53 +144,69 @@ def train(net, optim, loss_fn, train_dataloader, val_dataloader, epochs=100):
         else:
             count += 1
         if count > 5:
-            print(f'Early stopping at epoch {epoch}')
+            print(f"Early stopping at epoch {epoch}")
             break
 
         if epoch % 10 == 0:
-            print(f'Epoch {epoch} training loss: {train_loss / len(train_dataloader):.4f}')
-            print(f'Validation loss: {val_loss:.4f}')
+            print(
+                f"Epoch {epoch} training loss: {train_loss / len(train_dataloader):.4f}"
+            )
+            print(f"Validation loss: {val_loss:.4f}")
 
     net.load_state_dict(best_state_dict)
 
     # print(f'Test loss: {evaluate(net, data_loader_test, loss_fn):.4f}')
 
     plt.figure()
-    plt.plot(train_losses, label='train')
-    plt.plot(val_losses, label='val')
-    plt.title(f'Losses for {net.__class__.__name__} NN model')
+    plt.plot(train_losses, label="train")
+    plt.plot(val_losses, label="val")
+    plt.title(f"Losses for {net.__class__.__name__} NN model")
     plt.legend()
     plt.show()
     return net
 
 
-print('Creating same network')
-same_args = {'net': net_same, 'optim': optim_same, 'loss_fn': loss_fn_same, 'train_dataloader': data_loader_train_same,
-             'val_dataloader': data_loader_val_same, 'epochs': 100}
+print("Creating same network")
+same_args = {
+    "net": net_same,
+    "optim": optim_same,
+    "loss_fn": loss_fn_same,
+    "train_dataloader": data_loader_train_same,
+    "val_dataloader": data_loader_val_same,
+    "epochs": 100,
+}
 
-print('Creating different network')
-diff_args = {'net': net_diff, 'optim': optim_diff, 'loss_fn': loss_fn_diff, 'train_dataloader': data_loader_train_diff,
-             'val_dataloader': data_loader_val_diff, 'epochs': 100}
+print("Creating different network")
+diff_args = {
+    "net": net_diff,
+    "optim": optim_diff,
+    "loss_fn": loss_fn_diff,
+    "train_dataloader": data_loader_train_diff,
+    "val_dataloader": data_loader_val_diff,
+    "epochs": 100,
+}
 
-print('\nTraining same network')
+print("\nTraining same network")
 net_same = train(**same_args)
 
-print('\nTraining different network')
+print("\nTraining different network")
 net_diff = train(**diff_args)
 
-torch.save(net_same, 'data/freefall/freefall_same.pt')
-torch.save(net_diff, 'data/freefall/freefall_diff.pt')
+torch.save(net_same, "data/freefall/freefall_same.pt")
+torch.save(net_diff, "data/freefall/freefall_diff.pt")
 
 # Now load examples_test.csv and run the networks on it
-df_test = pd.read_csv('data/freefall/examples_tests.csv')
+df_test = pd.read_csv("data/freefall/examples_tests.csv")
 test_dataset = FreeFallDataset(df_test)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+test_dataloader = torch.utils.data.DataLoader(
+    test_dataset, batch_size=batch_size, shuffle=True
+)
 
-print('\nEvaluating same network')
-print(f'Test loss: {evaluate(net_same, test_dataloader, loss_fn_same):.4f}')
+print("\nEvaluating same network")
+print(f"Test loss: {evaluate(net_same, test_dataloader, loss_fn_same):.4f}")
 
-print('\nEvaluating different network')
-print(f'Test loss: {evaluate(net_diff, test_dataloader, loss_fn_diff):.4f}')
+print("\nEvaluating different network")
+print(f"Test loss: {evaluate(net_diff, test_dataloader, loss_fn_diff):.4f}")
 
 # Now run the networks on the test data and plot predicted vs actual
 with torch.no_grad():
@@ -188,15 +216,15 @@ with torch.no_grad():
         break
 
 plt.figure()
-plt.scatter(y, y_pred_same, label='same')
-plt.scatter(y, y_pred_diff, label='diff')
-plt.plot([0, 1], [0, 1], color='black')
+plt.scatter(y, y_pred_same, label="same")
+plt.scatter(y, y_pred_diff, label="diff")
+plt.plot([0, 1], [0, 1], color="black")
 # plot a diagonal line to show perfect correlation
-plt.plot(y[:, 0, 0], y[:, 0, 0], color='black')
-plt.title('Predicted vs actual for test data set using same and different networks')
+plt.plot(y[:, 0, 0], y[:, 0, 0], color="black")
+plt.title("Predicted vs actual for test data set using same and different networks")
 
-plt.xlabel('Actual')
-plt.ylabel('Predicted')
+plt.xlabel("Actual")
+plt.ylabel("Predicted")
 
 plt.legend()
 plt.show()

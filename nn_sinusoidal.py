@@ -9,6 +9,7 @@ import numpy as np
 
 # Create a neural network to predict the output of the sinusoidal function
 
+
 class Net(nn.Module):
     def __init__(self):
         super().__init__()
@@ -32,8 +33,8 @@ class Net(nn.Module):
 class SinusoidalDataset(torch.utils.data.Dataset):
     def __init__(self, df):
         self.df = df
-        self.x = df[['x']].values
-        self.y = df[['y']].values
+        self.x = df[["x"]].values
+        self.y = df[["y"]].values
 
     def __len__(self):
         return len(self.df)
@@ -54,18 +55,32 @@ class SinusoidalDataset(torch.utils.data.Dataset):
         batch_x = np.array(batch_x)
         batch_y = np.array(batch_y)
 
-        return torch.tensor(batch_x, dtype=torch.float32).squeeze(), torch.tensor(batch_y,
-                                                                                  dtype=torch.float32).squeeze()
+        return (
+            torch.tensor(batch_x, dtype=torch.float32).squeeze(),
+            torch.tensor(batch_y, dtype=torch.float32).squeeze(),
+        )
 
 
 # Load the datasets from the saved csv files
-data_folder = 'sinusoidal_functions/'
-train_files = ['train_sin.csv', 'train_cos.csv', 'train_sin+cos.csv', 'train_xsinx.csv', 'train_xcosx.csv',
-               'train_xsinx+xcosx.csv']
-test_files = ['test_sin.csv', 'test_cos.csv', 'test_sin+cos.csv', 'test_xsinx.csv', 'test_xcosx.csv',
-              'test_xsinx+xcosx.csv']
+data_folder = "data/sinusoidal_functions/"
+train_files = [
+    "train_sin.csv",
+    "train_cos.csv",
+    "train_sin+cos.csv",
+    "train_xsinx.csv",
+    "train_xcosx.csv",
+    "train_xsinx+xcosx.csv",
+]
+test_files = [
+    "test_sin.csv",
+    "test_cos.csv",
+    "test_sin+cos.csv",
+    "test_xsinx.csv",
+    "test_xcosx.csv",
+    "test_xsinx+xcosx.csv",
+]
 
-model_names = ['sin', 'cos', 'sin+cos', 'xsinx', 'xcosx', 'xsinx+xcosx']
+model_names = ["sin", "cos", "sin+cos", "xsinx", "xcosx", "xsinx+xcosx"]
 
 num_test_examples = 1000
 num_train_examples = 10000
@@ -81,10 +96,10 @@ train_indices = indices[:-num_val_examples]
 val_indices = indices[-num_val_examples:]
 
 # save train and val indices to csv
-df_train_indices = pd.DataFrame(train_indices, columns=['indices'])
-df_val_indices = pd.DataFrame(val_indices, columns=['indices'])
-df_train_indices.to_csv(data_folder + 'train_indices.csv', index=False)
-df_val_indices.to_csv(data_folder + 'val_indices.csv', index=False)
+df_train_indices = pd.DataFrame(train_indices, columns=["indices"])
+df_val_indices = pd.DataFrame(val_indices, columns=["indices"])
+df_train_indices.to_csv(data_folder + "train_indices.csv", index=False)
+df_val_indices.to_csv(data_folder + "val_indices.csv", index=False)
 
 
 # Now create training and test loop for each function
@@ -136,22 +151,41 @@ def plot_predictions(dataloader, model, name):
         preds = model(x_tensor)
 
         # Plot actual and predicted against x
-        plt.scatter(x_tensor, y_tensor, color='red', label='Actual')
-        plt.scatter(x_tensor, preds, color='blue', label='Predicted')
-        plt.title(f'Plot for {name} function')
-        plt.xlabel('Actual')
-        plt.ylabel('Predicted')
+        plt.scatter(x_tensor, y_tensor, color="red", label="Actual")
+        plt.scatter(x_tensor, preds, color="blue", label="Predicted")
+        plt.title(f"Plot for {name} function")
+        plt.xlabel("Actual")
+        plt.ylabel("Predicted")
         plt.legend()
         plt.show()
-        print(f'MSE for {name} function: {nn.MSELoss()(preds, y_tensor): .4f}')
+        plt.close()
+        print(f"MSE for {name} function: {nn.MSELoss()(preds, y_tensor): .4f}")
+
+        # plot actual against predicted
+        # Make the points smaller
+        plt.scatter(preds, y_tensor, color="blue", s=0.8)
+        # plot the line a dashed red line for perfect predictions
+        plt.plot(
+            y_tensor,
+            y_tensor,
+            color="red",
+            linestyle="dashed",
+            label="Perfect predictions",
+        )
+        plt.title(f"Actual vs Predicted for {name} function")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        plt.savefig(f"actual_vs_predicted_{name}_{name}_png")
+        plt.show()
+        plt.close()
 
 
 def plot_losses(train_loss, val_loss, name):
     # plot over the epochs
     epochs = len(train_loss)
-    plt.plot(range(epochs), train_loss, label='Train loss')
-    plt.plot(range(epochs), val_loss, label='Val loss')
-    plt.title(f'Losses for {name} function')
+    plt.plot(range(epochs), train_loss, label="Train loss")
+    plt.plot(range(epochs), val_loss, label="Val loss")
+    plt.title(f"Losses for {name} function")
     plt.legend()
     plt.show()
 
@@ -165,73 +199,94 @@ def main():
 
         # get train and val datasets
         df_train = df.iloc[train_indices]
-        df_val = df.iloc[val_indices]
+        data_ranges = [0.001, 0.01, 0.1, 1]
+        for data_range in data_ranges:
+            print(f"Running for {model_name} function with data range {data_range}")
+            df_val = df.iloc[val_indices]
 
-        # Create the datasets
-        train_dataset = SinusoidalDataset(df_train)
-        val_dataset = SinusoidalDataset(df_val)
-        test_dataset = SinusoidalDataset(df_test)
+            # Take subset of training data
+            df_train_ = df_train.iloc[: int(num_train_examples * data_range)]
 
-        # Create the dataloaders
-        train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True)
-        val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=64, shuffle=True)
-        test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=64, shuffle=True)
+            # Create the datasets
+            train_dataset = SinusoidalDataset(df_train_)
+            val_dataset = SinusoidalDataset(df_val)
+            test_dataset = SinusoidalDataset(df_test)
 
-        # Create the model
-        model = Net()
+            # Create the dataloaders
+            train_dataloader = torch.utils.data.DataLoader(
+                train_dataset, batch_size=64, shuffle=True
+            )
+            val_dataloader = torch.utils.data.DataLoader(
+                val_dataset, batch_size=64, shuffle=True
+            )
+            test_dataloader = torch.utils.data.DataLoader(
+                test_dataset, batch_size=64, shuffle=True
+            )
 
-        # Create the loss function and optimiser
-        loss_fn = nn.MSELoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
+            # Create the model
+            model = Net()
 
-        # Train the model
-        epochs = 100
-        loss_history = []
+            # Create the loss function and optimiser
+            loss_fn = nn.MSELoss()
+            optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 
-        val_losses = []
-        train_losses = []
-        best_val_loss = float('inf')
-        best_state_dict = None
-        for t in range(epochs):
-            # print(f"Epoch {t + 1}\n-------------------------------")
+            # Train the model
+            epochs = 100
+            loss_history = []
 
-            train_loss, val_loss, model = train_loop(train_dataloader, model, loss_fn, optimizer, val_dataloader)
-            train_losses.append(train_loss)
-            val_losses.append(val_loss)
+            val_losses = []
+            train_losses = []
+            best_val_loss = float("inf")
+            best_state_dict = None
+            for t in range(epochs):
+                # print(f"Epoch {t + 1}\n-------------------------------")
 
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
-                best_state_dict = model.state_dict()
+                train_loss, val_loss, model = train_loop(
+                    train_dataloader, model, loss_fn, optimizer, val_dataloader
+                )
+                train_losses.append(train_loss)
+                val_losses.append(val_loss)
 
-            if t % 10 == 0:
-                print(f"Epoch {t}\n-------------------------------")
-                print(f"{model_name} train_loss: {train_loss:.4f}, val_loss: {val_loss:.4f}")
+                if val_loss < best_val_loss:
+                    best_val_loss = val_loss
+                    best_state_dict = model.state_dict()
 
-            # Check for early stopping
-            if t > 50:
-                if round(val_losses[-1], 4) >= round(val_losses[-2], 4) >= round(val_losses[-3], 4) >= \
-                        round(val_losses[-4], 4) >= round(val_losses[-5], 4):
-                    print(f"Stopping early at epoch {t}")
-                    break
+                # if t % 10 == 0:
+                #     print(f"Epoch {t}\n-------------------------------")
+                #     print(f"{model_name} train_loss: {train_loss:.4f}, val_loss: {val_loss:.4f}")
+                #
+                # # Check for early stopping
+                if t > 50:
+                    if (
+                        round(val_losses[-1], 4)
+                        >= round(val_losses[-2], 4)
+                        >= round(val_losses[-3], 4)
+                        >= round(val_losses[-4], 4)
+                        >= round(val_losses[-5], 4)
+                    ):
+                        print(f"Stopping early at epoch {t}")
+                        break
 
-        model.load_state_dict(best_state_dict)
-        # Save best model
-        torch.save(model, f"{data_folder + model_name}_model.pt")
-        print("Done!")
+            model.load_state_dict(best_state_dict)
+            # Save best model
+            torch.save(model, f"{data_folder + model_name}_model.pt")
+            print("Done!")
 
-        # Plot the losses
-        plot_losses(train_losses, val_losses, model_name)
+            # Plot the losses
+            plot_losses(train_losses, val_losses, model_name)
 
-        # Evaluate the model
-        plot_predictions(test_dataloader, model, model_name)
-        # Print time in hours, minutes and seconds
-        print(
-            f"Time taken: {(time.time() - start_time) / 3600:.0f} hours"
-            f", {((time.time() - start_time) % 3600) / 60:.0f} minutes, {((time.time() - start_time) % 3600) % 60:.0f} "
-            f"seconds\n\n")
+            # Evaluate the model
+            plot_predictions(test_dataloader, model, model_name)
+            # Print time in hours, minutes and seconds
+            print(
+                f"Time taken: {(time.time() - start_time) / 3600:.0f} hours"
+                f", {((time.time() - start_time) % 3600) / 60:.0f} minutes, {((time.time() - start_time) % 3600) % 60:.0f} "
+                f"seconds\n\n"
+            )
 
-        pass
+            pass
+        break
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

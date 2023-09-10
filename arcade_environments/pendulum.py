@@ -35,30 +35,40 @@ class Pendulum(arcade.Window):
         arcade.start_render()
 
         # Draw the pendulum line
-        arcade.draw_line(self.pivot[0], self.pivot[1], self.pendulum_body[0], self.pendulum_body[1], arcade.color.BLACK,
-                         2)
+        arcade.draw_line(
+            self.pivot[0],
+            self.pivot[1],
+            self.pendulum_body[0],
+            self.pendulum_body[1],
+            arcade.color.BLACK,
+            2,
+        )
 
         # Draw the pendulum bob
-        arcade.draw_circle_filled(self.pendulum_body[0], self.pendulum_body[1], 10, arcade.color.RED)
+        arcade.draw_circle_filled(
+            self.pendulum_body[0], self.pendulum_body[1], 10, arcade.color.RED
+        )
         # save initial render as image
         if not self.saved:
             # arcade.finish_render()
-            arcade.get_image().save('../test2.png')
+            arcade.get_image().save("../images/test2.png")
             self.saved = True
 
     def update(self, delta_time):
         # Update the pendulum angle
-        angular_velocity = self.init_angular_velocity  # Adjust this value to change the swing speed
+        angular_velocity = (
+            self.init_angular_velocity
+        )  # Adjust this value to change the swing speed
         self.angle += angular_velocity
 
         # Update the position of the pendulum bob based on the angle
         self.pendulum_body = (
             self.pivot[0] + math.sin(self.angle) * self.pendulum_length,
-            self.pivot[1] - math.cos(self.angle) * self.pendulum_length
+            self.pivot[1] - math.cos(self.angle) * self.pendulum_length,
         )
         # Create stop condition
         if self.angle > math.pi * 0.8 or self.angle < -math.pi * 0.8:
-            print('The pendulum has completed a full swing')
+            print("The pendulum has completed a full swing")
             arcade.close_window()
 
     def on_key_press(self, key, modifiers):

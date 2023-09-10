@@ -37,7 +37,7 @@ class Coin:
         self.body = pymunk.Body(mass, moment)
         self.body.position = pymunk.Vec2d(x, y)
         self.shape = pymunk.Circle(self.body, radius)
-        self.shape.elasticity = 0.8 # This means that the coin will bounce back with 80% of its original speed
+        self.shape.elasticity = 0.8  # This means that the coin will bounce back with 80% of its original speed
         self.change_x = random.uniform(-COIN_SPEED_H, COIN_SPEED_H)
         self.change_y = 0
         self.radius = radius
@@ -47,17 +47,22 @@ class Coin:
         self.top = self.center_y + self.radius
         self.shape.collision_type = COIN
 
-
     def draw(self):
-        arcade.draw_circle_filled(self.body.position.x, self.body.position.y, self.radius, arcade.color.GOLD)
+        arcade.draw_circle_filled(
+            self.body.position.x, self.body.position.y, self.radius, arcade.color.GOLD
+        )
 
 
 class Shelf:
     def __init__(self, x, y, width, height, angle=0):
         self.body = pymunk.Body(body_type=pymunk.Body.STATIC)
         self.body.position = pymunk.Vec2d(x, y)
-        self.shape = pymunk.Segment(self.body, pymunk.Vec2d(-width / 2, -height / 2),
-                                    pymunk.Vec2d(width / 2, height / 2), 1)
+        self.shape = pymunk.Segment(
+            self.body,
+            pymunk.Vec2d(-width / 2, -height / 2),
+            pymunk.Vec2d(width / 2, height / 2),
+            1,
+        )
         self.shape.elasticity = 1.0
         self.body.angle = math.radians(angle)
         self.width = width
@@ -79,13 +84,19 @@ class Shelf:
             (-half_width, -half_height),
             (half_width, -half_height),
             (half_width, half_height),
-            (-half_width, half_height)
+            (-half_width, half_height),
         ]
 
         # Rotate each corner around the center of the rectangle.
-        corners = [(x * math.cos(math.radians(self.angle)) - y * math.sin(math.radians(self.angle)),
-                    x * math.sin(math.radians(self.angle)) + y * math.cos(math.radians(self.angle)))
-                   for x, y in corners]
+        corners = [
+            (
+                x * math.cos(math.radians(self.angle))
+                - y * math.sin(math.radians(self.angle)),
+                x * math.sin(math.radians(self.angle))
+                + y * math.cos(math.radians(self.angle)),
+            )
+            for x, y in corners
+        ]
 
         # Offset each corner by the position of the rectangle.
         corners = [(x + self.center_x, y + self.center_y) for x, y in corners]
@@ -95,10 +106,16 @@ class Shelf:
 
 class Pusher:
     def __init__(self, x, y, width, height):
-        self.body = pymunk.Body(body_type=pymunk.Body.KINEMATIC) # Kinematic bodies are not affected by gravity and they can be moved manually
+        self.body = pymunk.Body(
+            body_type=pymunk.Body.KINEMATIC
+        )  # Kinematic bodies are not affected by gravity and they can be moved manually
         self.body.position = pymunk.Vec2d(x, y)
-        self.shape = pymunk.Segment(self.body, pymunk.Vec2d(-width / 2, -height / 2),
-                                    pymunk.Vec2d(width / 2, height / 2), 1)
+        self.shape = pymunk.Segment(
+            self.body,
+            pymunk.Vec2d(-width / 2, -height / 2),
+            pymunk.Vec2d(width / 2, height / 2),
+            1,
+        )
         self.shape.elasticity = 0.95
         self.width = width
         self.height = height
@@ -108,7 +125,13 @@ class Pusher:
 
     def draw(self):
         # arcade.draw_rectangle_filled(self.center_x, self.center_y, self.width, self.height, self.color)
-        arcade.draw_rectangle_filled(self.body.position.x, self.body.position.y, self.width, self.height, self.color)
+        arcade.draw_rectangle_filled(
+            self.body.position.x,
+            self.body.position.y,
+            self.width,
+            self.height,
+            self.color,
+        )
 
 
 class CoinPusher(arcade.Window):
@@ -130,19 +153,33 @@ class CoinPusher(arcade.Window):
         # Create boundaries
         boundary_thickness = BOUNDARY_WIDTH
         boundaries = [
-            pymunk.Segment(self.space.static_body, (0, 0), (0, SCREEN_HEIGHT), boundary_thickness),  # Left
-            pymunk.Segment(self.space.static_body, (0, SCREEN_HEIGHT), (SCREEN_WIDTH, SCREEN_HEIGHT),
-                           boundary_thickness),  # Top
-            pymunk.Segment(self.space.static_body, (SCREEN_WIDTH, SCREEN_HEIGHT), (SCREEN_WIDTH, 0),
-                           boundary_thickness),  # Right
-            pymunk.Segment(self.space.static_body, (SCREEN_WIDTH, 0), (0, 0), boundary_thickness)  # Bottom
+            pymunk.Segment(
+                self.space.static_body, (0, 0), (0, SCREEN_HEIGHT), boundary_thickness
+            ),  # Left
+            pymunk.Segment(
+                self.space.static_body,
+                (0, SCREEN_HEIGHT),
+                (SCREEN_WIDTH, SCREEN_HEIGHT),
+                boundary_thickness,
+            ),  # Top
+            pymunk.Segment(
+                self.space.static_body,
+                (SCREEN_WIDTH, SCREEN_HEIGHT),
+                (SCREEN_WIDTH, 0),
+                boundary_thickness,
+            ),  # Right
+            pymunk.Segment(
+                self.space.static_body, (SCREEN_WIDTH, 0), (0, 0), boundary_thickness
+            ),  # Bottom
         ]
         for boundary in boundaries:
             boundary.elasticity = 1.0
             boundary.friction = 1.0
             boundary.collision_type = BOUNDARY
             # print boundary positions
-            print(f"Boundary at ({boundary.a.x}, {boundary.a.y}) to ({boundary.b.x}, {boundary.b.y})")
+            print(
+                f"Boundary at ({boundary.a.x}, {boundary.a.y}) to ({boundary.b.x}, {boundary.b.y})"
+            )
         self.space.add(*boundaries)
 
         # Create collision handler
@@ -185,9 +222,13 @@ class CoinPusher(arcade.Window):
     def update(self, delta_time):
         self.space.step(1 / 60.0)
         for i, coin in enumerate(self.coin_list):
-            if random.randint(1,100)<5:
-                print(f"Coin {i+1} at ({coin.body.position.x:.2f}, {coin.body.position.y:.2f})")
-                print(f"Coin {i+1} velocity ({coin.body.velocity.x:.2f}, {coin.body.velocity.y:.2f})") 
+            if random.randint(1, 100) < 5:
+                print(
+                    f"Coin {i+1} at ({coin.body.position.x:.2f}, {coin.body.position.y:.2f})"
+                )
+                print(
+                    f"Coin {i+1} velocity ({coin.body.velocity.x:.2f}, {coin.body.velocity.y:.2f})"
+                )
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.SPACE:
@@ -206,8 +247,14 @@ class CoinPusher(arcade.Window):
 
     def check_shelf_overlap(self, shelf1, shelf2):
         # Check if shelf1 overlaps with shelf2
-        return (shelf1.center_x - shelf1.width / 2 < shelf2.center_x < shelf1.center_x + shelf1.width / 2 and
-                shelf1.center_y - shelf1.height / 2 < shelf2.center_y < shelf1.center_y + shelf1.height / 2)
+        return (
+            shelf1.center_x - shelf1.width / 2
+            < shelf2.center_x
+            < shelf1.center_x + shelf1.width / 2
+            and shelf1.center_y - shelf1.height / 2
+            < shelf2.center_y
+            < shelf1.center_y + shelf1.height / 2
+        )
 
     def check_shelf_overlaps(self, shelf1):
         if len(self.shelf_list) > 1:
@@ -242,7 +289,6 @@ class CoinPusher(arcade.Window):
         return True
 
     def on_coin_pusher_collision(self, arbiter, space, data):
-
         print("Coin hit pusher")
         return True
 

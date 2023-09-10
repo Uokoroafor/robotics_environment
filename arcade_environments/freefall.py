@@ -1,21 +1,26 @@
+import csv
+import random
+from typing import Optional
+
 import arcade
 import pymunk
-from typing import Tuple, List, Any
-from arcade_environments.arcade_objects import Ball
-import random
-import time
+
+from arcade_environments.arcade_objects import Ball, Ground
+from arcade_environments.render_constants import (
+    SCREEN_WIDTH as WIDTH,
+    SCREEN_HEIGHT as HEIGHT,
+)
+
+# Constants
+BALL_RADIUS = 10
+GRAVITY = -10
+DAMPING = 1.0
 
 
 class FreefallView(arcade.View):
-    def __init__(self, env_: Any):
-        """ This is a view for the freefall environment. It is a wrapper around arcade's view object.
-
-        Args:
-            env_ (Any): The environment object
-        """
-
+    def __init__(self, env):
         super().__init__()
-        self.env = env_
+        self.env = env
 
     def on_draw(self):
         arcade.start_render()
@@ -23,168 +28,178 @@ class FreefallView(arcade.View):
             obj.draw()
 
     def on_update(self, delta_time):
-        self.env.step()
+        self.env.update(delta_time)
 
 
-class Freefall:
-
-    def __init__(self, width: int, height: int, gravity_x: float = 0.0, gravity_y: float = -0.1, radius: float = 20,
-                 height_limit: float = 1, render: bool = True):
-        """ This is a freefall environment. It is a wrapper around pymunk's space object. It is a simple environment
-        where a ball falls from the top of the screen to the bottom. There is no bounce or collision detection.
-
-        Args:
-            width (int): The width of the environment
-            height (int): The height of the environment
-            gravity_x (float, optional): The x component of the gravity vector. Defaults to 0.0.
-            gravity_y (float, optional): The y component of the gravity vector. Defaults to -1.0.
-            radius (float, optional): The radius of the ball. Defaults to 20.
-            height_limit (float, optional): The height limit of the generated ball. Defaults to 1.
-            render (bool, optional): Whether to render the environment. Defaults to True.
-        """
-
-        self.width = width
-        self.height = height
-        self.gravity = (gravity_x, gravity_y)
-        self.radius = radius
+class FreefallEnv:
+    def __init__(self, render=True, height_limit=0.2, time_limit=5):
         self.space = pymunk.Space()
-        self.space.gravity = self.gravity
-        self.height_limit = height_limit
-        self.render = render
+        self.space.gravity = (0, GRAVITY)
+        self.space.damping = DAMPING
         self.objects = []
         self.text_log = []
+        self.text_log.append(f"Gravity is {GRAVITY}.")
         self.numerical_log = dict(
-            gravity=self.gravity[-1],
-            radius=self.radius,
-            x_0=None,
+            gravity=GRAVITY,
+            radius=BALL_RADIUS,
             y_0=None,
             vy_0=None,
             t_1=None,
-            x_1=None,
             y_1=None,
             vy_1=None,
         )
-        # Add gravity to the self.text_log
-        self.text_log.append(f"Gravity: {self.gravity[-1]}.")
+        self.ball = None
+        self.width = WIDTH
+        self.height = HEIGHT
+        self.height_limit = height_limit
+        self.time_limit = time_limit
+        self.elapsed_time = 0.0
+
+        # Add ground
+        ground = Ground(self.space, width=WIDTH)
+        ground.elasticity = 0.0  # Make the ground not bouncy
 
         self.add_ball()
-        if self.render:
-            self.setup_render()
+        self.render_mode = render
+        self.end_episode = False
+
+        if self.render_mode:
+            self.window = arcade.Window(WIDTH, HEIGHT, "Freefall")
+            self.window.show_view(FreefallView(self))
+
+        else:
+            while True:  # Infinite loop for logging mode
+                self.update(1 / 60)  # Update every 1/60 seconds
+                if self.end_episode:
+                    break
+
+    def update(self, delta_time):
+        # if self.render_mode:
+        self.space.step(delta_time)  # Advance the simulation by 1/60th of a second
+        self.elapsed_time += delta_time
+        # else:
+        #     self.space.step(self.time_limit)
+        #     self.elapsed_time += self.time_limit
+
+        # End the episode if the ball hits the ground
+        if self.elapsed_time >= self.time_limit:
+            self.log_state(self.elapsed_time)
+            self.end_episode = True
+
+        if self.end_episode and self.render_mode:
+            arcade.close_window()
 
     def add_ball(self):
-        """ This function adds a ball to the environment. The ball is added to the self.objects list and the self.space object.
-        """
-
+        """Makes a ball and adds it to the environment"""
         # Pick a random x and y coordinate for the ball
         x = round(random.uniform(0, self.width), 2)
         y = round(random.uniform((1 - self.height_limit) * self.height, self.height), 2)
-
-        # Create a ball object
-        ball = Ball(x, y, self.radius)
-
-        # Add the ball to the self.objects list and the self.space object
-        self.objects.append(ball)
-        self.space.add(ball.body, ball.shape)
-        # Add the ball to the self.text_log
-        self.text_log.append(f"Added ball of radius {self.radius} at x={x} and y={y}).")
-        self.text_log.append(f"Initial velocity is 0.")
-
-        # Add the ball's initial position to the self.numerical_log
-        self.numerical_log["x_0"] = x
-        self.numerical_log["y_0"] = y
-
-        # Initial velocity is 0
-        self.numerical_log["vy_0"] = 0.0
-
-    def drop_ball(self, time: float = 5.0):
-        """This function drops the ball for a given amount of time.
-
-        Args:
-            time (float, optional): The amount of time to drop the ball for. Defaults to 5.0.
-
-        Returns:
-            List[float]: The state of the environment after the ball has been dropped.
-        """
-        # Drop the ball for a given amount of time (in seconds)
-        dt = 1 / 60  # Fixed time step of 1/60 seconds
-        num_steps = int(time / dt)
-
-        for _ in range(num_steps):
-            self.step()
-
-        # Add the ball's final position to the self.numerical_log
-        self.numerical_log["t_1"] = time
-        self.numerical_log["x_1"] = round(self.objects[0].body.position.x, 2)
-        self.numerical_log["y_1"] = round(self.objects[0].body.position.y, 2)
-        self.numerical_log["vy_1"] = round(self.objects[0].body.velocity.y, 2)
-
-        # Add the ball's final position to the self.text_log
+        self.ball = Ball(self.space, radius=BALL_RADIUS, mass=1, x=x, y=y)
+        self.objects.append(self.ball)
+        # Update the initial conditions in the numerical log and text log
+        self.numerical_log["y_0"] = round(y, 2)
+        self.numerical_log["vy_0"] = round(self.ball.body.velocity.y, 2)
         self.text_log.append(
-            f"Ball's position at time {time} is x={round(self.objects[0].body.position.x, 2)} and y={round(self.objects[0].body.position.y, 2)}.")
-        self.text_log.append(f"Ball's final velocity is {round(self.objects[0].body.velocity.y, 2)}.")
+            f"Ball of radius {BALL_RADIUS} dropped from y={y:.2f} with initial velocity={float(0)}."
+        )
 
-        # Stop the rendering and close the window
-        if self.render:
-            arcade.finish_render()
-            arcade.close_window()
+    def log_state(self, t):
+        self.numerical_log["t_1"] = round(self.elapsed_time, 1)
+        self.numerical_log["y_1"] = round(self.ball.body.position.y, 2)
+        self.numerical_log["vy_1"] = round(self.ball.body.velocity.y, 2)
+        self.text_log.append(f"At time {round(t, 1)}")
+        self.text_log.append(
+            f"Ball's Position is y={round(self.ball.body.position.y, 2)}."
+        )
+        self.text_log.append(f"Velocity is {round(self.ball.body.velocity.y, 2)}.")
 
-        # Return the state of the environment
+    def make_minimal_text(
+        self, split_text: str = "ans: ", ans_key: Optional[str] = None
+    ) -> str:
+        """Joins up the text in the numerical log to make a minimal text"""
+        # Join the column names and values
+        if ans_key is None:
+            # Take the last value in the numerical log as the answer
+            ans_key = list(self.numerical_log.keys())[-1]
+        text = ""
+        for key, value in self.numerical_log.items():
+            if key != ans_key:
+                text += f"{key}: {value}, "
 
-        return self.get_state()
+        # Add the split text and the answer
+        text += f"{split_text}{self.numerical_log[ans_key]}"
+        return text
 
-    def step(self):
-        """ This function steps the environment forward one step.
-        """
-        self.space.step(1 / 60)
-        if self.render:
-            self.draw()
+    def make_descriptive_text(
+        self, split_text: str = "ans: ", ans_index: Optional[int] = None
+    ) -> str:
+        """Joins up the text in the text log to make a descriptive text"""
+        # Join the column names and values
+        if ans_index is None:
+            # Take the last value in the numerical log as the answer
+            ans_index = len(self.text_log) - 1
+        text = ""
+        for i, line in enumerate(self.text_log):
+            if i != ans_index:
+                text += f"{line} "
 
-    def draw(self):
-        """ This function draws the environment.
-        """
-        arcade.start_render()  # Start rendering
-        for obj in self.objects:
-            obj.draw()
-        arcade.finish_render()  # Finish rendering
+        # Add the split text and the answer
+        text += f"{split_text}{self.text_log[ans_index]}"
+        return text
 
-    def get_state(self) -> List[float]:
-        """ This function returns the state of the environment. The state is a list of the x and y
-        coordinates of the ball.
 
-        Returns:
-            List[float]: The state of the environment
-        """
-        return [self.objects[0].body.position.x, self.objects[0].body.position.y, self.objects[0].body.velocity.y]
+def main(iters=1000, save_path=None):
+    numerical_logs = []
+    text_logs = []
+    minimal_texts = []
+    descriptive_texts = []
 
-    def setup_render(self):
-        """ This function sets up the rendering of the environment.
-        """
-        arcade.open_window(self.width, self.height, "Freefall")
-        arcade.set_background_color(arcade.color.WHITE)
-        self.draw()
+    for i in range(iters):
+        time_limit = random.randint(1, 10)
+        env = FreefallEnv(render=False, time_limit=time_limit)
+        numerical_logs.append(env.numerical_log)
+        text_logs.append(env.text_log)
+        minimal_texts.append(env.make_minimal_text())
+        descriptive_texts.append(env.make_descriptive_text())
 
-    def close_window(self):
-        arcade.close_window()
+    # Remove duplicates
+    numerical_logs = list({tuple(log.items()) for log in numerical_logs})
+    text_logs = list({tuple(log) for log in text_logs})
+    minimal_texts = list({text for text in minimal_texts})
+    descriptive_texts = list({text for text in descriptive_texts})
 
-    def render_env(self):
-        """ Start the arcade loop for rendering """
-        window = arcade.Window(self.width, self.height, "Freefall")
-        arcade.set_background_color(arcade.color.WHITE)
-        view = FreefallView(self)
-        window.show_view(view)
-        arcade.run()
+    # Reconvert numerical logs to dicts
+    numerical_logs = [dict(log) for log in numerical_logs]
+    text_logs = [" ".join(list(log)) for log in text_logs]
+
+    if save_path is not None:
+        # save numerical log as csv and the rest as txt
+        # All the fields in the numerical log are the same for each entry so save it as a csv
+        with open(save_path + "numerical_logs.csv", "w") as f:
+            writer = csv.DictWriter(f, fieldnames=numerical_logs[0].keys())
+            writer.writeheader()
+            for log in numerical_logs:
+                writer.writerow(log)
+
+        with open(save_path + "text_log.txt", "w") as f:
+            for log in text_logs:
+                f.write(str(log) + "\n")
+        with open(save_path + "minimal_text.txt", "w") as f:
+            for text in minimal_texts:
+                f.write(str(text) + "\n")
+        with open(save_path + "descriptive_text.txt", "w") as f:
+            for text in descriptive_texts:
+                f.write(str(text) + "\n")
+
+    print(f"Number of unique numerical logs: {len(numerical_logs)}")
+    print(f"Number of unique text logs: {len(text_logs)}")
+    print(f"Number of unique minimal texts: {len(minimal_texts)}")
+    print(f"Number of unique descriptive texts: {len(descriptive_texts)}")
+
+    return numerical_logs, text_logs, minimal_texts, descriptive_texts
 
 
 if __name__ == "__main__":
-    print('Creating environment')
-    env = Freefall(500, 500, render=True, height_limit=0.2)
-    if env.render:
-        env.render_env()
-
-    print('Dropping ball')
-    env.drop_ball()
-    time.sleep(2)  # Delay for 2 seconds
-    env.close_window()
-
-    print(env.numerical_log)
-    print(env.text_log)
+    random.seed(6_345_789)
+    save_path_ = "../data/freefall/freefall_"
+    main(100_000, save_path_)

@@ -9,6 +9,7 @@ CELL_SIZE = 40
 MAZE_WIDTH = SCREEN_WIDTH // CELL_SIZE
 MAZE_HEIGHT = SCREEN_HEIGHT // CELL_SIZE
 
+
 class Maze:
     def __init__(self):
         self.maze = [[1] * MAZE_WIDTH for _ in range(MAZE_HEIGHT)]
@@ -59,7 +60,13 @@ class Maze:
         row = int(row)
         col = int(col)
 
-        return row >= 0 and row < MAZE_HEIGHT and col >= 0 and col < MAZE_WIDTH and self.maze[row][col] == 0
+        return (
+            row >= 0
+            and row < MAZE_HEIGHT
+            and col >= 0
+            and col < MAZE_WIDTH
+            and self.maze[row][col] == 0
+        )
 
     def draw(self):
         for row in range(MAZE_HEIGHT):
@@ -67,7 +74,10 @@ class Maze:
                 if self.maze[row][col] == 1:
                     x = col * CELL_SIZE
                     y = row * CELL_SIZE
-                    arcade.draw_rectangle_filled(x, y, CELL_SIZE, CELL_SIZE, arcade.color.BLACK)
+                    arcade.draw_rectangle_filled(
+                        x, y, CELL_SIZE, CELL_SIZE, arcade.color.BLACK
+                    )
+
 
 class Robot(arcade.Sprite):
     def __init__(self, filename, scale, maze):
@@ -85,6 +95,7 @@ class Robot(arcade.Sprite):
         if self.maze.is_valid_cell(new_y // CELL_SIZE, new_x // CELL_SIZE):
             self.center_x = new_x
             self.center_y = new_y
+
 
 class RobotMaze(arcade.Window):
     def __init__(self, width, height, title):
@@ -128,9 +139,11 @@ class RobotMaze(arcade.Window):
         elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.robot.change_x = 0
 
+
 def main():
     game = RobotMaze(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
     arcade.run()
+
 
 if __name__ == "__main__":
     main()

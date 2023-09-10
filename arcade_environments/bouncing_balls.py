@@ -7,6 +7,7 @@ BALL_RADIUS = 20
 GRAVITY = 0.1
 BOUNCE_FACTOR = 0.9
 
+
 class Ball:
     def __init__(self, x, y, dx, dy, radius, color):
         self.x = x
@@ -56,7 +57,11 @@ class BouncingBalls(arcade.Window):
             dx = random.uniform(-5, 5)
             dy = random.uniform(-5, 5)
             # Randomly select a color
-            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            color = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             ball = Ball(x, y, dx, dy, BALL_RADIUS, color)
             self.ball_list.append(ball)
 
@@ -66,7 +71,7 @@ class BouncingBalls(arcade.Window):
             ball.draw()
         if not self.saved:
             # arcade.finish_render()
-            arcade.get_image().save('../test3.png')
+            arcade.get_image().save("../images/test3.png")
             self.saved = True
 
     def update(self, delta_time):

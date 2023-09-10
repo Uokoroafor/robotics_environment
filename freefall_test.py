@@ -24,8 +24,11 @@ class Ball:
         self.colour = colour
         self.mass = mass
         # Save info to 2 decimal places
-        self.info = f" is at ({round(self.x, 2)}, {round(self.y, 2)}) with velocity ({round(self.dx, 2)}, {round(self.dy, 2)}), " \
-                    f"mass {round(self.mass, 2)} and radius {round(self.radius, 2)}."
+        self.info = (
+            f" is at ({round(self.x, 2)}, {round(self.y, 2)}) with velocity ({round(self.dx, 2)}, {round(self.dy, 2)}), "
+            f"mass {round(self.mass, 2)} and radius {round(self.radius, 2)}."
+        )
+
     def update(self):
         self.x += self.dx
         self.y += self.dy
@@ -40,7 +43,6 @@ class Ball:
 
     def print_info(self):
         print(self.info)
-
 
     def draw(self):
         arcade.draw_circle_filled(self.x, self.y, self.radius, self.colour)
@@ -87,7 +89,11 @@ class Freefall(arcade.Window):
             dx = random.uniform(-0.1, 0.1)
             dy = random.uniform(-0.1, 0.1)
             # Randomly select a colour
-            colour = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            colour = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             mass = random.uniform(1, 10)
             ball = Ball(x, y, dx, dy, RADIUS, colour, mass)
             self.ball_list.append(ball)
@@ -95,8 +101,6 @@ class Freefall(arcade.Window):
 
             # Add info to log
             self.log[f"ball_{i+1}"] = self.ball_list[-1].info
-
-
 
     def on_draw(self):
         arcade.start_render()
@@ -136,8 +140,6 @@ class Freefall(arcade.Window):
             self.saved = True
 
 
-
-
 def main():
     window = Freefall(SCREEN_WIDTH, SCREEN_HEIGHT)
     window.setup()
@@ -149,7 +151,3 @@ if __name__ == "__main__":
     for j in range(1000):
         main()
     # main()
-
-
-
-

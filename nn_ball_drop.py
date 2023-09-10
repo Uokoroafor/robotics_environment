@@ -32,10 +32,13 @@ class NetBall(nn.Module):
 class BallDataset(torch.utils.data.Dataset):
     def __init__(self, df):
         self.df = df
-        self.x = df[['x1', 'y1', 'x2', 'y2', 'dx1', 'dy1', 'dx2', 'dy2']].values
-        self.y = df[['ans']].values
+        self.x = df[["x1", "y1", "x2", "y2", "dx1", "dy1", "dx2", "dy2"]].values
+        self.y = df[["ans"]].values
         # convert y to one-hot encoding 'same' = [1, 0, 0], 'ball_1' = [0, 1, 0], 'ball_2' = [0, 0, 1]
-        self.y = [[1, 0, 0] if y == 'same' else [0, 1, 0] if y == 'ball_1' else [0, 0, 1] for y in self.y]
+        self.y = [
+            [1, 0, 0] if y == "same" else [0, 1, 0] if y == "ball_1" else [0, 0, 1]
+            for y in self.y
+        ]
 
     def __len__(self):
         return len(self.df)
@@ -60,18 +63,18 @@ loss_fn = nn.CrossEntropyLoss()
 
 optim_same = torch.optim.Adam(net_ball.parameters(), lr=0.0001)
 
-df = pd.read_csv('data/ball_drop/ball_drop.csv')
+df = pd.read_csv("data/ball_drop/ball_drop.csv")
 
 indices = list(range(len(df)))
 random.shuffle(indices)
-train_indices = indices[:int(0.8 * len(indices))]
-val_indices = indices[int(0.8 * len(indices)):int(0.9 * len(indices))]
-test_indices = indices[int(0.9 * len(indices)):]
+train_indices = indices[: int(0.8 * len(indices))]
+val_indices = indices[int(0.8 * len(indices)) : int(0.9 * len(indices))]
+test_indices = indices[int(0.9 * len(indices)) :]
 
 # save train, val, test indices to csvs
-pd.DataFrame(train_indices).to_csv('data/indices/10k/train_indices.csv', index=False)
-pd.DataFrame(val_indices).to_csv('data/indices/10k/val_indices.csv', index=False)
-pd.DataFrame(test_indices).to_csv('data/indices/10k/test_indices.csv', index=False)
+pd.DataFrame(train_indices).to_csv("data/indices/10k/train_indices.csv", index=False)
+pd.DataFrame(val_indices).to_csv("data/indices/10k/val_indices.csv", index=False)
+pd.DataFrame(test_indices).to_csv("data/indices/10k/test_indices.csv", index=False)
 
 train_dataset = BallDataset(df.iloc[train_indices])
 val_dataset = BallDataset(df.iloc[val_indices])
@@ -85,7 +88,7 @@ test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=32, shuffle=T
 def train(net, optim, loss_fn, train_loader, val_loader, epochs=10):
     train_losses = []
     val_losses = []
-    best_val_loss = float('inf')
+    best_val_loss = float("inf")
     best_model_dict = None
     counter = 0
     for epoch in range(epochs):
@@ -121,7 +124,9 @@ def train(net, optim, loss_fn, train_loader, val_loader, epochs=10):
         val_losses.append(epoch_val_loss / len(val_loader))
 
         # print losses to 4 decimal places
-        print(f'Epoch {epoch} : train loss = {train_losses[-1]:.4f}, val loss = {val_losses[-1]:.4f}')
+        print(
+            f"Epoch {epoch} : train loss = {train_losses[-1]:.4f}, val loss = {val_losses[-1]:.4f}"
+        )
         # Save model if val loss is lower than the previous lowest val loss
         if val_losses[-1] < best_val_loss:
             best_val_loss = val_losses[-1]
@@ -134,7 +139,7 @@ def train(net, optim, loss_fn, train_loader, val_loader, epochs=10):
             # or the last 5 are within 0.001 of each other
 
             if counter > 5 or min(val_losses[-5:]) > best_val_loss:
-                print('Early stopping at epoch :', epoch)
+                print("Early stopping at epoch :", epoch)
                 break
 
         else:
@@ -143,10 +148,10 @@ def train(net, optim, loss_fn, train_loader, val_loader, epochs=10):
     # Save best model
     net.load_state_dict(best_model_dict)
     # save the best model at the end of training
-    torch.save(net, 'data/ball_drop/best_model_ball.pt')
+    torch.save(net, "data/ball_drop/best_model_ball.pt")
 
-    plt.plot(train_losses, label='train')
-    plt.plot(val_losses, label='val')
+    plt.plot(train_losses, label="train")
+    plt.plot(val_losses, label="val")
     plt.legend()
     plt.show()
 
@@ -163,17 +168,23 @@ def test(net, test_loader):
         for batch_x, batch_y in test_loader:
             batch_y_hat = net(batch_x.float()).squeeze(1)
             batch_y = batch_y.squeeze(1)
-            correct += torch.eq(torch.argmax(batch_y_hat, dim=1), torch.argmax(batch_y, dim=1)).sum().item()
+            correct += (
+                torch.eq(torch.argmax(batch_y_hat, dim=1), torch.argmax(batch_y, dim=1))
+                .sum()
+                .item()
+            )
             total += len(batch_y)
             # update confusion matrix
-            for t, p in zip(torch.argmax(batch_y, dim=1), torch.argmax(batch_y_hat, dim=1)):
+            for t, p in zip(
+                torch.argmax(batch_y, dim=1), torch.argmax(batch_y_hat, dim=1)
+            ):
                 confusion_matrix[t.long(), p.long()] += 1
             # print(confusion_matrix)
 
             # calculate accuracy per class
             # for i in range(3):
 
-    print(f'Test accuracy: {correct / total}')
+    print(f"Test accuracy: {correct / total}")
     print(confusion_matrix / confusion_matrix.sum(1).view(-1, 1))
 
 

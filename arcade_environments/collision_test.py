@@ -29,7 +29,11 @@ class BouncingBalls(arcade.Window):
             dx = random.uniform(-5, 5)
             dy = random.uniform(-5, 5)
             # Randomly select a color
-            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+            color = (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
             ball = Ball(x, y, dx, dy, BALL_RADIUS, color)
             self.ball_list.append(ball)
 
@@ -46,7 +50,6 @@ class BouncingBalls(arcade.Window):
         for line in self.line_list:
             line.draw()
         # image = arcade.get_image()
-
 
     def update(self, delta_time):
         for ball in self.ball_list:
@@ -76,7 +79,8 @@ class BouncingBalls(arcade.Window):
         with open("../data/ball_drop/balls.txt", "w") as f:
             for ball in self.ball_list:
                 f.write(
-                    f"{ball.x} {ball.y} {ball.dx} {ball.dy} {ball.radius} {ball.color[0]} {ball.color[1]} {ball.color[2]}\n")
+                    f"{ball.x} {ball.y} {ball.dx} {ball.dy} {ball.radius} {ball.color[0]} {ball.color[1]} {ball.color[2]}\n"
+                )
 
     def load_balls(self):
         # Load the balls from a file
@@ -159,7 +163,7 @@ class Ball:
         A = line.y2 - line.y1
         B = line.x1 - line.x2
         C = (line.x2 * line.y1) - (line.y2 * line.x1)
-        distance = abs(A * self.x + B * self.y + C) / ((A ** 2 + B ** 2) ** 0.5)
+        distance = abs(A * self.x + B * self.y + C) / ((A**2 + B**2) ** 0.5)
 
         if distance <= self.radius:
             # print("Collision detected between a ball and a line")
@@ -189,7 +193,7 @@ class Ball:
         reflection_angle = 2 * angle - ball_angle
 
         # Calculate the new velocity
-        velocity = (self.dx ** 2 + self.dy ** 2) ** 0.5
+        velocity = (self.dx**2 + self.dy**2) ** 0.5
 
         # Calculate the new velocity components
         self.dx = velocity * math.cos(reflection_angle)
@@ -212,7 +216,7 @@ class Ball:
         reflection_angle = 2 * angle - ball_angle
 
         # Calculate the new velocity
-        velocity = (self.dx ** 2 + self.dy ** 2) ** 0.5
+        velocity = (self.dx**2 + self.dy**2) ** 0.5
 
         # Calculate the new velocity components
         self.dx = velocity * math.cos(reflection_angle)
@@ -239,7 +243,6 @@ def main():
     window = BouncingBalls(SCREEN_WIDTH, SCREEN_HEIGHT)
     window.setup()
     arcade.run()
-
 
 
 if __name__ == "__main__":
